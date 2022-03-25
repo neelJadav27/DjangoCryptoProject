@@ -13,6 +13,10 @@
         {% csrf_token %}
         <label class="l-app-heading">Crypto</label><br>
         <label class="l-app-heading">Bazzar</label><br>
+        {% if status %}
+            <h1 class="l-app-heading"> {{ status }} </h1>
+        {% endif %}
+
         <div class="mr">
             <label class="l-login">Login</label><br>
         </div>
