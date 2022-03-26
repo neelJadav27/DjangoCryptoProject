@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="293a5f39-00ac-4d83-9d20-5330858d189c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/NoImage.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/defineCrypto.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/profile.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crypto/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/crypto/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
-    </list>
+    <list default="true" id="293a5f39-00ac-4d83-9d20-5330858d189c" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -25,6 +14,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="26uMOS0QwXMwZp5lthIA3cVoMbT" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
