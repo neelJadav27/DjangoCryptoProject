@@ -33,10 +33,7 @@ def login(req):
         if logInForm.is_valid():
             email = logInForm.cleaned_data['email']
             password = logInForm.cleaned_data["password"]
-            print(email)
-            print(password)
             user = authenticate(username=email, password=password)
-            print(user)
             if user is not None:
                 if user.is_active:
                     django.contrib.auth.login(req, user)
@@ -87,7 +84,7 @@ def home(req):
     data = pd.DataFrame()
     for a in cryptoData:
         # print(a['alias'])
-        df1 = yf.download(a['alias'] + "-USD", start=GetPrevDate(2)[0], end=GetPrevDate(2)[1], interval="90m")
+        df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(2)[0], end=getPrevDate(2)[1], interval="59m")
         df1["currency"] = a['alias']
         data = data.append(df1)
 
@@ -99,18 +96,18 @@ def home(req):
 
 
 def defineCrypto(req, currency_name):
-    data = yf.download(currency_name + "-USD", start=GetPrevDate(90)[0], end=GetPrevDate(90)[1], interval="5m")
+    data = yf.download(currency_name + "-USD", start=getPrevDate(59)[0], end=getPrevDate(59)[1], interval="5m")
     return render(req, 'defineCrypto.html', {'columns': data.columns, 'rows': data.to_dict('records')})
 
 
 def profile(req):
-    UserInfo = req.user
-    return render(req, 'profile.html', {'user_info': UserInfo})
+    userInfo = req.user
+    return render(req, 'profile.html', {'user_info': userInfo})
 
 
-def GetPrevDate(back):
-    Today = datetime.today() + timedelta(1)
-    Yesterday = datetime.today() - timedelta(back)
-    Today = Today.strftime('%Y-%m-%d')
-    Yesterday = Yesterday.strftime('%Y-%m-%d')
-    return Yesterday, Today
+def getPrevDate(back):
+    today = datetime.today() + timedelta(1)
+    yesterday = datetime.today() - timedelta(back)
+    today = today.strftime('%Y-%m-%d')
+    yesterday = yesterday.strftime('%Y-%m-%d')
+    return yesterday, today
