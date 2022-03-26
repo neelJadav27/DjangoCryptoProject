@@ -92,7 +92,8 @@ def defineCrypto(req, currency_name):
 
 def profile(req):
     UserInfo= req.user
-    return render(req, 'profile.html',{'user_info':UserInfo})
+    wallet_info= Wallet.objects.filter(userId=UserInfo.id)
+    return render(req, 'profile.html',{'user_info':UserInfo,'waller_info':wallet_info})
 
 def GetPrevDate(back):
   Today=datetime.today() + timedelta(1)
