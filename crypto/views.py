@@ -9,14 +9,14 @@ from .models import Crypto as Cr
 from .forms import *
 import numpy as np
 import pandas as pd
-# Data Source
 import yfinance as yf
 from yahooquery import Screener
-# Data viz
 import plotly.graph_objs as go
-# date
 from datetime import datetime, timedelta
+import yfinance as yf
+import plotly.graph_objs as go
 
+from datetime import datetime, timedelta
 
 def index(req):
     if not req.user:
@@ -37,6 +37,11 @@ def login(req):
             print(password)
             user = authenticate(username=email, password=password)
             print(user)
+            if user is not None:
+                if user.is_active:
+                    django.contrib.auth.login(req, user)
+
+            user = authenticate(username=email, password=password)
             if user is not None:
                 if user.is_active:
                     django.contrib.auth.login(req, user)
@@ -64,7 +69,8 @@ def signup(req):
             password = signUpForm.cleaned_data['password']
             sex = signUpForm.cleaned_data['sex']
             phoneNo = signUpForm.cleaned_data['phoneNo']
-            data = User.objects.create_user(email=email,username=email,dob=dob,first_name=firstName,last_name=lastName,password=password,sex=sex,phoneNo=phoneNo)
+            data = User.objects.create_user(email=email, username=email, dob=dob, first_name=firstName,
+                                            last_name=lastName, password=password, sex=sex, phoneNo=phoneNo)
             data.save()
             return HttpResponse("Registered")
         else:
@@ -88,12 +94,23 @@ def home(req):
     data = data.reset_index(level=0)
     data = data.drop('Adj Close', axis=1)
 
-    return render(req, "home.html", {'columns': data.columns, 'rows':data.to_dict('records'), "cryptoData": cryptoData,"range":range(1,int(countData/10) + 1)})
+    return render(req, "home.html", {'columns': data.columns, 'rows': data.to_dict('records'), "cryptoData": cryptoData,
+                                     "range": range(1, int(countData / 10) + 1)})
+
+
+def defineCrypto(req, currency_name):
+    data = yf.download(currency_name + "-USD", start=GetPrevDate(90)[0], end=GetPrevDate(90)[1], interval="5m")
+    return render(req, 'defineCrypto.html', {'columns': data.columns, 'rows': data.to_dict('records')})
+
+
+def profile(req):
+    UserInfo = req.user
+    return render(req, 'profile.html', {'user_info': UserInfo})
 
 
 def GetPrevDate(back):
-  Today=datetime.today() + timedelta(1)
-  Yesterday=datetime.today()- timedelta(back)
-  Today=Today.strftime('%Y-%m-%d')
-  Yesterday=Yesterday.strftime('%Y-%m-%d')
-  return Yesterday,Today
+    Today = datetime.today() + timedelta(1)
+    Yesterday = datetime.today() - timedelta(back)
+    Today = Today.strftime('%Y-%m-%d')
+    Yesterday = Yesterday.strftime('%Y-%m-%d')
+    return Yesterday, Today
