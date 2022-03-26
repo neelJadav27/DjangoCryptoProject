@@ -6,4 +6,6 @@ urlpatterns = [
     path("login", views.login, name='login'),
     path("signup", views.signup, name='signup'),
     path("home", views.home, name='home'),
+    path('<str:currency_name>', views.DefineCrypto, name='DefineCrypto'),
+
 ]

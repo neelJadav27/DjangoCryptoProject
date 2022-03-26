@@ -77,13 +77,11 @@ def signup(req):
 
 def home(req):
     countData = Cr.objects.filter().count()
-    print(countData)
     cryptoData = Cr.objects.filter(id__gte=1, id__lte=10).values()
-
     data = pd.DataFrame()
     for a in cryptoData:
         # print(a['alias'])
-        df1 = yf.download(a['alias'] + "-USD", start=GetPrevDate()[0], end=GetPrevDate()[1], interval="90m")
+        df1 = yf.download(a['alias'] + "-USD", start=GetPrevDate(2)[0], end=GetPrevDate(2)[1], interval="90m")
         df1["currency"] = a['alias']
         data = data.append(df1)
 
@@ -93,9 +91,14 @@ def home(req):
     return render(req, "home.html", {'columns': data.columns, 'rows':data.to_dict('records'), "cryptoData": cryptoData,"range":range(1,int(countData/10) + 1)})
 
 
-def GetPrevDate():
-    Today = datetime.today() + timedelta(1)
-    Yesterday = datetime.today() - timedelta(1)
-    Today = Today.strftime('%Y-%m-%d')
-    Yesterday = Yesterday.strftime('%Y-%m-%d')
-    return Yesterday, Today
+def DefineCrypto(req, currency_name):
+    data = yf.download(currency_name + "-USD", start=GetPrevDate(90)[0], end=GetPrevDate(90)[1], interval="5m")
+    return  render (req , 'DefineCrypto.html',{'columns': data.columns, 'rows': data.to_dict('records')})
+
+
+def GetPrevDate(back):
+  Today=datetime.today() + timedelta(1)
+  Yesterday=datetime.today()- timedelta(back)
+  Today=Today.strftime('%Y-%m-%d')
+  Yesterday=Yesterday.strftime('%Y-%m-%d')
+  return Yesterday,Today
