@@ -91,11 +91,6 @@ def home(req):
     return render(req, "home.html", {'columns': data.columns, 'rows':data.to_dict('records'), "cryptoData": cryptoData,"range":range(1,int(countData/10) + 1)})
 
 
-def DefineCrypto(req, currency_name):
-    data = yf.download(currency_name + "-USD", start=GetPrevDate(90)[0], end=GetPrevDate(90)[1], interval="5m")
-    return  render (req , 'DefineCrypto.html',{'columns': data.columns, 'rows': data.to_dict('records')})
-
-
 def GetPrevDate(back):
   Today=datetime.today() + timedelta(1)
   Yesterday=datetime.today()- timedelta(back)
