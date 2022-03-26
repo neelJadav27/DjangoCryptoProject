@@ -1,0 +1,96 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{% static "css/home.css" %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</head>
+<body>
+
+<div style="width: 250px;height: 150px">
+  <canvas style="background: azure" id="myChart"></canvas>
+</div>
+
+<script>
+  const labels = [
+                {% for row in rows %}
+                        {% if row.currency == 'BTC' %}
+                                '{{ " "     }}',
+                        {% endif %}
+                  {% endfor %}
+                ];
+
+  const data = {
+    labels: labels,
+    datasets: [{
+      label: 'My First dataset',
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgb(255, 99, 132)',
+    pointRadius:1,
+      data:
+          [{% for row in rows %}
+              {% if row.currency == 'BTC' %}
+                {{ row.High }},
+              {% endif %}
+          {% endfor %}]
+    }]
+  };
+
+  const config = {
+    type: 'line',
+    data: data,
+
+    options: {
+        plugins: {
+        legend: {
+            display: false
+        }
+    },
+        scales: {
+            y: {
+                display: false,
+            },
+            x:{
+                display:false
+            }
+        },
+
+    }
+  };
+  const myChart = new Chart(
+    document.getElementById('myChart'),
+    config,
+  );
+
+</script>
+
+{% if cryptoData %}
+
+    {% for data in cryptoData %}
+
+        <div class="data-block">
+            <div class="grid">
+                <div> {{ data.id }} </div>
+
+                <div> <image src="{{ data.url }}"></image> </div>
+
+                <div> {{ data.name }} </div>
+
+                <div> - {{ data.alias  }} </div>
+
+                <div> Smit </div>
+            </div>
+        </div>
+
+    {% endfor %}
+{% endif %}
+    {% for i in range %}
+        {{ i }}
+    {% endfor %}
+</body>
+</html>

@@ -23,6 +23,7 @@ class Crypto(models.Model):
     alias = models.CharField(max_length=30)
     available = models.PositiveIntegerField(default=1000)
     description = models.CharField(max_length=200,blank=True)
+    url = models.TextField(default="https://raw.githubusercontent.com/neelJadav27/DjangoCryptoProject/main/NoImage.png")
 
 
 class Wallet(models.Model):

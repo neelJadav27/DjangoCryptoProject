@@ -9,13 +9,13 @@ from .models import Crypto as Cr
 from .forms import *
 import numpy as np
 import pandas as pd
-#Data Source
+# Data Source
 import yfinance as yf
-#Data viz
+from yahooquery import Screener
+# Data viz
 import plotly.graph_objs as go
-#date
+# date
 from datetime import datetime, timedelta
-
 
 
 def index(req):
@@ -33,10 +33,13 @@ def login(req):
         if logInForm.is_valid():
             email = logInForm.cleaned_data['email']
             password = logInForm.cleaned_data["password"]
+            print(email)
+            print(password)
             user = authenticate(username=email, password=password)
+            print(user)
             if user is not None:
                 if user.is_active:
-                    django.contrib.auth.login(req,user)
+                    django.contrib.auth.login(req, user)
                     return redirect("index")
                 else:
                     status = "User account disabled"
@@ -51,15 +54,18 @@ def login(req):
 
 
 def signup(req):
-
     if req.method == "POST":
         signUpForm = SignUpForm(req.POST)
         if signUpForm.is_valid():
             email = signUpForm.cleaned_data['email']
-            signUpForm = signUpForm.save(commit=False)
-            signUpForm.username = email
-            signUpForm.save()
-
+            dob = signUpForm.cleaned_data['dob']
+            firstName = signUpForm.cleaned_data['first_name']
+            lastName = signUpForm.cleaned_data['last_name']
+            password = signUpForm.cleaned_data['password']
+            sex = signUpForm.cleaned_data['sex']
+            phoneNo = signUpForm.cleaned_data['phoneNo']
+            data = User.objects.create_user(email=email,username=email,dob=dob,first_name=firstName,last_name=lastName,password=password,sex=sex,phoneNo=phoneNo)
+            data.save()
             return HttpResponse("Registered")
         else:
             return HttpResponse("Invalid data")
@@ -69,25 +75,27 @@ def signup(req):
     return render(req, "signup.html", {"signUpForm": signUpForm})
 
 
-
 def home(req):
+    countData = Cr.objects.filter().count()
+    print(countData)
+    cryptoData = Cr.objects.filter(id__gte=1, id__lte=10).values()
 
-    Currencies= Cr.objects.filter(available__gte=1).values('alias')
     data = pd.DataFrame()
-    for a in Currencies:
-        #print(a['alias'])
-        df1= yf.download(a['alias']+"-USD", start=GetPrevDate()[0], end=GetPrevDate()[1], interval="1m")
-        df1["currency"]=a['alias']
-        data =data.append(df1)
+    for a in cryptoData:
+        # print(a['alias'])
+        df1 = yf.download(a['alias'] + "-USD", start=GetPrevDate()[0], end=GetPrevDate()[1], interval="90m")
+        df1["currency"] = a['alias']
+        data = data.append(df1)
 
-    print(data)
-    return HttpResponse("ASDASDAS")
+    data = data.reset_index(level=0)
+    data = data.drop('Adj Close', axis=1)
 
+    return render(req, "home.html", {'columns': data.columns, 'rows':data.to_dict('records'), "cryptoData": cryptoData,"range":range(1,int(countData/10) + 1)})
 
 
 def GetPrevDate():
-  Today=datetime.today() + timedelta(1)
-  Yesterday=datetime.today()- timedelta(2)
-  Today=Today.strftime('%Y-%m-%d')
-  Yesterday=Yesterday.strftime('%Y-%m-%d')
-  return Yesterday,Today
+    Today = datetime.today() + timedelta(1)
+    Yesterday = datetime.today() - timedelta(1)
+    Today = Today.strftime('%Y-%m-%d')
+    Yesterday = Yesterday.strftime('%Y-%m-%d')
+    return Yesterday, Today
