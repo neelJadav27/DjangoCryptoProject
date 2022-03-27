@@ -18,6 +18,7 @@ import plotly.graph_objs as go
 
 from datetime import datetime, timedelta
 
+
 def index(req):
     if not req.user:
         return HttpResponse("User does not exist")
@@ -84,7 +85,7 @@ def home(req):
     data = pd.DataFrame()
     for a in cryptoData:
         # print(a['alias'])
-        df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(2)[0], end=getPrevDate(2)[1], interval="59m")
+        df1 = yf.download(a['alias'] + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
         df1["currency"] = a['alias']
         data = data.append(df1)
 
@@ -95,8 +96,22 @@ def home(req):
                                      "range": range(1, int(countData / 10) + 1)})
 
 
+def cryptoDetails(req, name):
+
+    data = pd.DataFrame()
+
+    df1 = yf.download(name + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
+    df1["currency"] = name
+    data = data.append(df1)
+
+    data = data.reset_index(level=0)
+    data = data.drop('Adj Close', axis=1)
+
+    return render(req, "cryptodetail.html", {'column': data.columns, 'rows': data.to_dict('records'), 'name': name})
+
+
 def defineCrypto(req, currency_name):
-    data = yf.download(currency_name + "-USD", start=getPrevDate(59)[0], end=getPrevDate(59)[1], interval="5m")
+    data = yf.download(currency_name + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
     return render(req, 'defineCrypto.html', {'columns': data.columns, 'rows': data.to_dict('records')})
 
 
@@ -105,9 +120,9 @@ def profile(req):
     return render(req, 'profile.html', {'user_info': userInfo})
 
 
-def getPrevDate(back):
+def getPrevDate():
     today = datetime.today() + timedelta(1)
-    yesterday = datetime.today() - timedelta(back)
+    yesterday = datetime.today() - timedelta(2)
     today = today.strftime('%Y-%m-%d')
     yesterday = yesterday.strftime('%Y-%m-%d')
     return yesterday, today

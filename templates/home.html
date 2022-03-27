@@ -11,79 +11,85 @@
 
 </head>
 <body>
-
-<div style="width: 250px;height: 150px">
-  <canvas style="background: azure" id="myChart"></canvas>
-</div>
-
-<script>
-  const labels = [
-                {% for row in rows %}
-                        {% if row.currency == 'BTC' %}
-                                '{{ " "     }}',
-                        {% endif %}
-                  {% endfor %}
-                ];
-
-  const data = {
-    labels: labels,
-    datasets: [{
-      label: 'My First dataset',
-      backgroundColor: 'rgb(255, 99, 132)',
-      borderColor: 'rgb(255, 99, 132)',
-    pointRadius:1,
-      data:
-          [{% for row in rows %}
-              {% if row.currency == 'BTC' %}
-                {{ row.High }},
-              {% endif %}
-          {% endfor %}]
-    }]
-  };
-
-  const config = {
-    type: 'line',
-    data: data,
-
-    options: {
-        plugins: {
-        legend: {
-            display: false
-        }
-    },
-        scales: {
-            y: {
-                display: false,
-            },
-            x:{
-                display:false
-            }
-        },
-
-    }
-  };
-  const myChart = new Chart(
-    document.getElementById('myChart'),
-    config,
-  );
-
-</script>
-
+<form method="POST">
+    <
+    <input type="submit" value="Submit">
+</form>
 {% if cryptoData %}
 
-    {% for data in cryptoData %}
+    {% for value in cryptoData %}
 
         <div class="data-block">
             <div class="grid">
-                <div> {{ data.id }} </div>
+                <div> {{ value.id }} </div>
 
-                <div> <image src="{{ data.url }}"></image> </div>
+                <div> <image src="{{ value.url }}"></image> </div>
 
-                <div> {{ data.name }} </div>
+                <div> {{ value.name }} </div>
 
-                <div> - {{ data.alias  }} </div>
+                <div> - {{ value.alias  }} </div>
 
-                <div> Smit </div>
+                <div >
+                  <canvas style="background: azure" id="myChart{{ value.id }}"></canvas>
+                </div>
+
+                <script>
+                  var labelName = "labels"+{{ value.id }};
+                  var dataName = "data"+{{ value.id }};
+                  var configName = "config"+{{ value.id }};
+                  var myChartName = "myChart"+{{ value.id }};
+
+                  window[labelName] = [
+                                {% for row in rows %}
+                                        {% if row.currency == value.alias %}
+                                                '{{ " "     }}',
+                                        {% endif %}
+                                  {% endfor %}
+                                ];
+
+                  window[dataName] = {
+                    labels: window[labelName],
+                    datasets: [{
+                      label: 'My First dataset',
+                      backgroundColor: 'rgb(255, 99, 132)',
+                      borderColor: 'rgb(255, 99, 132)',
+                    pointRadius:1,
+                      data:
+                          [{% for row in rows %}
+                              {% if row.currency == value.alias %}
+                                {{ row.High }},
+                              {% endif %}
+                          {% endfor %}]
+                    }]
+                  };
+
+                  window[configName] = {
+                    type: 'line',
+                    data: window[dataName],
+
+                    options: {
+                        plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                        scales: {
+                            y: {
+                                display: false,
+                            },
+                            x:{
+                                display:false
+                            }
+                        },
+
+                    }
+                  };
+                  window[myChartName] = new Chart(
+                    document.getElementById('myChart{{ value.id }}'),
+                    window[configName],
+                  );
+
+                </script>
             </div>
         </div>
 
