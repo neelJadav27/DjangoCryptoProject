@@ -86,9 +86,10 @@ def home(req):
     return render(req, 'home.html', {'columns': data.columns, 'rows': data.to_dict('records')})
 
 def defineCrypto(req, currency_name):
-    data = yf.download(currency_name + "-USD", start=GetPrevDate(90)[0], end=GetPrevDate(90)[1], interval="5m")
-    return  render (req , 'defineCrypto.html',{'columns': data.columns, 'rows': data.to_dict('records')})
-
+    data = yf.download(currency_name + "-USD", start=GetPrevDate(59)[0], end=GetPrevDate(59)[1], interval="5m")
+    data = data.reset_index(level=0)
+    data = data.drop('Adj Close', axis=1)
+    return  render (req , 'defineCrypto.html',{'columns': data.columns, 'rows': data.to_dict('records'),'ten_days':data['Datetime'][0]+timedelta(49),'30_days':data['Datetime'][0]+timedelta(29)})
 
 def profile(req):
     UserInfo= req.user
