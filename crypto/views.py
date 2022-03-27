@@ -1,8 +1,8 @@
 import django.contrib.auth
+import requests
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-# Create your views here.
 from datetime import date
 from .models import *
 from .models import Crypto as Cr
@@ -96,18 +96,29 @@ def home(req):
                                      "range": range(1, int(countData / 10) + 1)})
 
 
-def cryptoDetails(req, name):
+def cryptoName(req, cryptoName):
 
     data = pd.DataFrame()
+    if req.method == "POST":
+        print("Got it")
+        if req.POST.get("first"):
+            df1 = yf.download(cryptoName + "-USD", start="2022-03-01", end="2022-03-15", interval="5m")
+        elif req.POST.get("second"):
+            print("second")
+        elif req.POST.get("third"):
+            print("third")
 
-    df1 = yf.download(name + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
-    df1["currency"] = name
+    else:
+        df1 = yf.download(cryptoName + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
+
+    df1["currency"] = cryptoName
+
     data = data.append(df1)
 
     data = data.reset_index(level=0)
     data = data.drop('Adj Close', axis=1)
 
-    return render(req, "cryptodetail.html", {'column': data.columns, 'rows': data.to_dict('records'), 'name': name})
+    return render(req, "cryptodetail.html", {'column': data.columns, 'rows': data.to_dict('records'), 'cryptoName': cryptoName})
 
 
 def defineCrypto(req, currency_name):

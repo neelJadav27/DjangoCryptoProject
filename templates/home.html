@@ -11,10 +11,7 @@
 
 </head>
 <body>
-<form method="POST">
-    <
-    <input type="submit" value="Submit">
-</form>
+
 {% if cryptoData %}
 
     {% for value in cryptoData %}
@@ -25,7 +22,7 @@
 
                 <div> <image src="{{ value.url }}"></image> </div>
 
-                <div> {{ value.name }} </div>
+                <div> <a href={% url 'crypto:cryptoName' value.alias%}> {{ value.name}} </a> </div>
 
                 <div> - {{ value.alias  }} </div>
 

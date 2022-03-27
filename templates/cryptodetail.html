@@ -6,72 +6,77 @@
     <meta charset="UTF-8">
     <title>Home Page</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 </head>
 <body>
+    <form action="{% url 'crypto:cryptoName' cryptoName%}" method="POST">
+        {% csrf_token %}
+        <input name="first" value="15 days" type="submit" />
+        <input name="second" value="1 month" type="submit" />
+        <input name="third"  value="2 month" type="submit"/>
 
-    <div >
-      <canvas style="background: azure" id="myChart"></canvas>
+
+    <div style="height: 100px; width: 300px;">
+      <canvas style="background: azure" id="myChart{{ cryptoName }}"></canvas>
     </div>
 
-
 <script>
-    var labelName = "labels"{{ value.id }};
-                  var dataName = "data"{{ value.id }};
-                  var configName = "config"{{ value.id }};
-                  var myChartName = "myChart"{{ value.id }};
-    eval('var ' + labelName)
-    eval('var ' + dataName)
-    eval('var ' + configName)
-    eval('var ' + myChartName)
+      var labelName = "labels";
+      var dataName = "data";
+      var configName = "config";
+      var myChartName = "myChart";
 
-  window[labelName] = [
-                {% for row in rows %}
-                        {% if row.currency == name %}
-                                '{{ " "     }}',
-                        {% endif %}
-                  {% endfor %}
-                ];
+      window[labelName] = [
+                    {% for row in rows %}
+                            {% if row.currency == cryptoName %}
+                                    '{{ " "     }}',
+                            {% endif %}
+                      {% endfor %}
+                    ];
 
-  window[dataName] = {
-    labels: window[dataName],
-    datasets: [{
-      label: 'My First dataset',
-      backgroundColor: 'rgb(255, 99, 132)',
-      borderColor: 'rgb(255, 99, 132)',
-    pointRadius:1,
-      data:
-          [{% for row in rows %}
-              {% if row.currency == name %}
-                {{ row.Volume }},
-              {% endif %}
-          {% endfor %}]
-    }]
-  };
+      window[dataName] = {
+        labels: window[labelName],
+        datasets: [{
+          label: 'My First dataset',
+          backgroundColor: 'rgb(255, 99, 132)',
+          borderColor: 'rgb(255, 99, 132)',
+        pointRadius:1,
+          data:
+              [{% for row in rows %}
+                  {% if row.currency == cryptoName %}
+                    {{ row.High }},
+                  {% endif %}
+              {% endfor %}]
+        }]
+      };
 
-  window[configName] = {
-    type: 'line',
-    data: window[dataName],
-    options: {
-        plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
-        scales: {
-            y: {
-                display: false,
+      window[configName] = {
+        type: 'line',
+        data: window[dataName],
+
+        options: {
+            plugins: {
+            legend: {
+                display: false
             }
+        },
+            scales: {
+                y: {
+                    display: false,
+                },
+                x:{
+                    display:false
+                }
+            },
+
         }
-    }
-  };
-  window[myChartName] = new Chart(
-    document.getElementById('myChart'),
-    window[configName],
-  );
+      };
+      window[myChartName] = new Chart(
+        document.getElementById('myChart{{ cryptoName }}'),
+        window[configName],
+      );
+
 
 </script>
-
-
+    </form>
 </body>
 </html>
