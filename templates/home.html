@@ -1,0 +1,99 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</head>
+<body>
+
+{% if cryptoData %}
+
+    {% for value in cryptoData %}
+
+        <div class="data-block">
+            <div class="grid">
+                <div> {{ value.id }} </div>
+
+                <div> <image src="{{ value.url }}"></image> </div>
+
+                <div> <a href={% url 'crypto:cryptoName' value.alias%}> {{ value.name}} </a> </div>
+
+                <div> - {{ value.alias  }} </div>
+
+                <div >
+                  <canvas style="background: azure" id="myChart{{ value.id }}"></canvas>
+                </div>
+
+                <script>
+                  var labelName = "labels"+{{ value.id }};
+                  var dataName = "data"+{{ value.id }};
+                  var configName = "config"+{{ value.id }};
+                  var myChartName = "myChart"+{{ value.id }};
+
+                  window[labelName] = [
+                                {% for row in rows %}
+                                        {% if row.currency == value.alias %}
+                                                '{{ " "     }}',
+                                        {% endif %}
+                                  {% endfor %}
+                                ];
+
+                  window[dataName] = {
+                    labels: window[labelName],
+                    datasets: [{
+                      label: 'My First dataset',
+                      backgroundColor: 'rgb(255, 99, 132)',
+                      borderColor: 'rgb(255, 99, 132)',
+                    pointRadius:1,
+                      data:
+                          [{% for row in rows %}
+                              {% if row.currency == value.alias %}
+                                {{ row.High }},
+                              {% endif %}
+                          {% endfor %}]
+                    }]
+                  };
+
+                  window[configName] = {
+                    type: 'line',
+                    data: window[dataName],
+
+                    options: {
+                        plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                        scales: {
+                            y: {
+                                display: false,
+                            },
+                            x:{
+                                display:false
+                            }
+                        },
+
+                    }
+                  };
+                  window[myChartName] = new Chart(
+                    document.getElementById('myChart{{ value.id }}'),
+                    window[configName],
+                  );
+
+                </script>
+            </div>
+        </div>
+
+    {% endfor %}
+{% endif %}
+    {% for i in range %}
+        {{ i }}
+    {% endfor %}
+</body>
+</html>
