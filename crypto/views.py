@@ -43,7 +43,7 @@ def login(req):
             if user is not None:
                 if user.is_active:
                     django.contrib.auth.login(req, user)
-                    return redirect("index")
+                    return redirect("crypto:index")
                 else:
                     status = "User account disabled"
             else:
