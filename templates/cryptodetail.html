@@ -11,9 +11,13 @@
     <form action="{% url 'crypto:cryptoName' cryptoName%}" method="POST">
 
         {% csrf_token %}
-        <input name="first" value="15 days" type="submit" />
-        <input name="second" value="1 month" type="submit" />
-        <input name="third"  value="2 month" type="submit"/>
+        <input name="oneDay"  value="1 Day" type="submit"/>
+        <input name="sevenDays" value="7 days" type="submit" />
+        <input name="fifteenDays" value="15 days" type="submit" />
+        <input name="oneMonth" value="1 month" type="submit" />
+        <input name="twoMonths"  value="2 month" type="submit"/>
+
+
 
     <div style="height: 100px; width: 300px;">
       <canvas style="background: azure" id="myChart{{ cryptoName }}"></canvas>

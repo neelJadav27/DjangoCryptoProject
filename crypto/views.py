@@ -9,13 +9,13 @@ from .models import Crypto as Cr
 from .forms import *
 import numpy as np
 import pandas as pd
+
 import yfinance as yf
 from yahooquery import Screener
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
 import yfinance as yf
 import plotly.graph_objs as go
-
 from datetime import datetime, timedelta
 
 
@@ -84,8 +84,7 @@ def home(req):
     cryptoData = Cr.objects.filter(id__gte=1, id__lte=10).values()
     data = pd.DataFrame()
     for a in cryptoData:
-        # print(a['alias'])
-        df1 = yf.download(a['alias'] + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
+        df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="90m")
         df1["currency"] = a['alias']
         data = data.append(df1)
 
@@ -101,15 +100,23 @@ def cryptoName(req, cryptoName):
     data = pd.DataFrame()
     if req.method == "POST":
         print("Got it")
-        if req.POST.get("first"):
-            df1 = yf.download(cryptoName + "-USD", start="2022-03-01", end="2022-03-15", interval="5m")
-        elif req.POST.get("second"):
+
+        if req.POST.get("oneDay"):
+            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m")
+        elif req.POST.get("sevenDays"):
             print("second")
-        elif req.POST.get("third"):
+            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="15m")
+        elif req.POST.get("fifteenDays"):
+            print("second")
+            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(15)[0], end=getPrevDate(15)[1], interval="15m")
+        elif req.POST.get("oneMonth"):
+            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(30)[0], end=getPrevDate(30)[1], interval="30m")
+        elif req.POST.get("twoMonths"):
+            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(59)[0], end=getPrevDate(59)[1], interval="90m")
             print("third")
 
     else:
-        df1 = yf.download(cryptoName + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
+        df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m")
 
     df1["currency"] = cryptoName
 
@@ -137,3 +144,21 @@ def getPrevDate():
     today = today.strftime('%Y-%m-%d')
     yesterday = yesterday.strftime('%Y-%m-%d')
     return yesterday, today
+
+
+def getPrevDate(prevDate):
+    today = datetime.today()
+    if prevDate == 15:
+        previousDate = datetime.today() - timedelta(15)
+    elif prevDate == 30:
+        previousDate = datetime.today() - timedelta(30)
+    elif prevDate == 59:
+        previousDate = datetime.today() - timedelta(59)
+    elif prevDate == 7:
+        previousDate = datetime.today() - timedelta(7)
+    elif prevDate == 1:
+        previousDate = datetime.today() - timedelta(1)
+    today = today.strftime('%Y-%m-%d')
+    previousDate = previousDate.strftime('%Y-%m-%d')
+    return previousDate, today
+

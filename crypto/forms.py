@@ -22,7 +22,6 @@ class SignUpForm(forms.ModelForm):
         fields = ["first_name", "last_name", "email", "password", "sex", "dob", "phoneNo"]
         widgets = {
             'dob': DateInput(attrs={'class': 'label-input100', 'id': 'birthday', 'name': 'birthday'}),
-            'password': forms.PasswordInput(),
             'first_name': forms.TextInput(
                 attrs={'name': 'first_name', 'class': 'input100', 'placeholder': 'First Name'}),
             'last_name': forms.TextInput(attrs={'name': 'last_name', 'class': 'input100', 'placeholder': 'Last Name'}),
@@ -32,8 +31,7 @@ class SignUpForm(forms.ModelForm):
             'sex': forms.Select(attrs={'name': 'sex', 'class': 'label-input100', 'placeholder': 'Sex'}),
             'phoneNo': forms.TextInput(
                 attrs={'name': 'phoneNo', 'class': 'input100', 'placeholder': 'Phone Number',
-                       'maxlength': 10, 'minlength': 10}),
-        }
+                       'maxlength': 10, 'minlength': 10})}
 
 
 class Crypto(forms.ModelForm):
