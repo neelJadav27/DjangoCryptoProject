@@ -19,6 +19,7 @@
 
 
 
+
     <div style="height: 100px; width: 300px;">
       <canvas style="background: azure" id="myChart{{ cryptoName }}"></canvas>
     </div>
@@ -81,6 +82,12 @@
 
 
 </script>
+    {% if cryptoDetails %}
+          {% for data in cryptoDetails %}
+              <h1> Alias : {{ data.alias }} </h1>
+              <h1> Name : {{ data.name }} </h1>
+          {% endfor %}
+      {% endif %}
     </form>
 </body>
 </html>
