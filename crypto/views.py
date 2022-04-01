@@ -145,20 +145,24 @@ def getPrevDate():
     yesterday = yesterday.strftime('%Y-%m-%d')
     return yesterday, today
 
-
 def getPrevDate(prevDate):
     today = datetime.today()
-    if prevDate == 15:
-        previousDate = datetime.today() - timedelta(15)
-    elif prevDate == 30:
-        previousDate = datetime.today() - timedelta(30)
-    elif prevDate == 59:
-        previousDate = datetime.today() - timedelta(59)
-    elif prevDate == 7:
-        previousDate = datetime.today() - timedelta(7)
-    elif prevDate == 1:
-        previousDate = datetime.today() - timedelta(1)
+    previousDate = datetime.today() - timedelta(prevDate)
     today = today.strftime('%Y-%m-%d')
     previousDate = previousDate.strftime('%Y-%m-%d')
     return previousDate, today
+
+def paymentDetails(req):
+    if req.method == "POST":
+        paymentForm = PaymentDetailsForm(req.POST)
+        if paymentForm.is_valid():
+            paymentData = paymentForm.save(commit=False)
+            paymentData.userId = User.objects.get(username = req.user.username)
+            paymentForm.save()
+            return HttpResponse("success")
+        else:
+            return HttpResponse("Invalid data")
+    else:
+        paymentForm = PaymentDetailsForm()
+    return render(req, "cardDetails.html", {"paymentForm": paymentForm})
 

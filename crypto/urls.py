@@ -8,5 +8,6 @@ urlpatterns = [
     path("signup", views.signup, name='signup'),
     path("home", views.home, name='home'),
     path("profile", views.profile, name='profile'),
+    path("add_payment", views.paymentDetails, name='add_payment'),
     path('<str:cryptoName>', views.cryptoName, name='cryptoName'),
 ]
