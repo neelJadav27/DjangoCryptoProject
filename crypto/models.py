@@ -38,6 +38,7 @@ class Wallet(models.Model):
 class PaymentInfo(models.Model):
     reg = RegexValidator(regex="^[0-9]{12}$", message="THIS WILL ONLY ALLOW TWELVE DIGIT NUMBERS")
     cvvReg = RegexValidator(regex="^[0-9]{3}$", message="THIS WILL ONLY ALLOW THREE DIGIT NUMBERS")
+    cardHolderName = models.CharField(max_length=100,blank=False,null=False)
     cardNo = models.BigIntegerField(validators=[reg], blank=False, null=False)
     expiryDate = models.DateField(null=False, blank=False)
     CVV = models.PositiveIntegerField(validators=[cvvReg], blank=False, null=False)

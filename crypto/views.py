@@ -55,7 +55,13 @@ def login(req):
     else:
         logInForm = LogInForm()
         status = ""
-    return render(req, "login.html", {"logInForm": logInForm, "status": status})
+
+    context = {
+        "logInForm": logInForm,
+        "status": status
+    }
+
+    return render(req, "login.html", context)
 
 
 def signup(req):
@@ -78,7 +84,11 @@ def signup(req):
     else:
         signUpForm = SignUpForm()
 
-    return render(req, "signup.html", {"signUpForm": signUpForm})
+    context = {
+        "signUpForm": signUpForm
+    }
+
+    return render(req, "signup.html", context)
 
 
 def home(req):
@@ -162,7 +172,7 @@ def cryptoName(req, cryptoName):
         'cryptoDetails': cryptoData,
     }
 
-    return render(req, "cryptodetail.html",context)
+    return render(req, "cryptodetail.html", context)
 
 
 def defineCrypto(req, currency_name):
@@ -182,6 +192,7 @@ def getPrevDate():
     yesterday = yesterday.strftime('%Y-%m-%d')
     return yesterday, today
 
+
 def getPrevDate(prevDate):
     today = datetime.today()
     previousDate = datetime.today() - timedelta(prevDate)
@@ -190,32 +201,45 @@ def getPrevDate(prevDate):
     return previousDate, today
 
 
-
 def getPageRange(pageNumber, onEachSide, totalPage):
     range1 = max(pageNumber - onEachSide + 1, 1)
     range2 = min(pageNumber + onEachSide + 1, totalPage)
 
     return range1, range2
 
+
 def paymentDetails(req):
     if req.method == "POST":
         paymentForm = PaymentDetailsForm(req.POST)
         if paymentForm.is_valid():
             paymentData = paymentForm.save(commit=False)
-            paymentData.userId = User.objects.get(username = req.user.username)
+            paymentData.userId = User.objects.get(username=req.user.username)
             paymentForm.save()
             return HttpResponse("success")
         else:
             return HttpResponse("Invalid data")
     else:
         paymentForm = PaymentDetailsForm()
-    return render(req, "carddetails.html", {"paymentForm": paymentForm})
+
+    context = {
+        "paymentForm": paymentForm
+
+    }
+    return render(req, "carddetails.html", context)
 
 
 def makePayment(req):
-    user = User.objects.get(username = req.user.username)
-    paymentData = PaymentInfo.objects.get(userId=user)
-    print(paymentData)
+    user = User.objects.get(username=req.user.username)
+    paymentData = PaymentInfo.objects.filter(userId=user).values()
+
+    if paymentData.count() > 0:
+        isPaymentAdded = True
+    else:
+        isPayMentAdded = False
+
+    context = {
+        "isPayMentAdded": isPayMentAdded,
+    }
+
+    return render(req,"makepayment.html",context)
     return HttpResponse("Check Terminal for OP")
-
-
