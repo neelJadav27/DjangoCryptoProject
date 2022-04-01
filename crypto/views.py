@@ -96,7 +96,6 @@ def home(req):
 
 
 def cryptoName(req, cryptoName):
-
     data = pd.DataFrame()
     if req.method == "POST":
 
@@ -125,7 +124,9 @@ def cryptoName(req, cryptoName):
     data = data.drop('Adj Close', axis=1)
     cryptoData = Cr.objects.filter(alias=cryptoName).values()
     print(cryptoData)
-    return render(req, "cryptodetail.html", {'column': data.columns, 'rows': data.to_dict('records'), 'cryptoName': cryptoName,'cryptoDetails':cryptoData})
+    return render(req, "cryptodetail.html",
+                  {'column': data.columns, 'rows': data.to_dict('records'), 'cryptoName': cryptoName,
+                   'cryptoDetails': cryptoData})
 
 
 def defineCrypto(req, currency_name):
@@ -148,17 +149,7 @@ def getPrevDate():
 
 def getPrevDate(prevDate):
     today = datetime.today()
-    if prevDate == 15:
-        previousDate = datetime.today() - timedelta(15)
-    elif prevDate == 30:
-        previousDate = datetime.today() - timedelta(30)
-    elif prevDate == 59:
-        previousDate = datetime.today() - timedelta(59)
-    elif prevDate == 7:
-        previousDate = datetime.today() - timedelta(7)
-    elif prevDate == 1:
-        previousDate = datetime.today() - timedelta(1)
+    previousDate = datetime.today() - timedelta(prevDate)
     today = today.strftime('%Y-%m-%d')
     previousDate = previousDate.strftime('%Y-%m-%d')
     return previousDate, today
-

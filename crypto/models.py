@@ -20,7 +20,7 @@ class Crypto(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
     alias = models.CharField(max_length=30, null=False, blank=False)
     available = models.FloatField(default=1000)
-    description = models.CharField(max_length=200, blank=True)
+    description = models.CharField(max_length=2000, blank=True)
     url = models.TextField(default="https://raw.githubusercontent.com/neelJadav27/DjangoCryptoProject/main/NoImage.png")
 
 
