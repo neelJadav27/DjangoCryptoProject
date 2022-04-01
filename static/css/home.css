@@ -35,3 +35,8 @@ label{
 }
 
 .button1 {background-color: lightblue;}
+
+.ol{
+    list-style-position: inside;
+    padding-left: 0;
+}

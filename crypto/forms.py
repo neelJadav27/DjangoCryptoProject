@@ -38,3 +38,12 @@ class Crypto(forms.ModelForm):
     class Meta:
         model = Crypto
         fields = ['name', 'alias']
+
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = PaymentInfo
+        fields = ['cardNo', 'expiryDate', 'CVV']
+        widgets = {
+            'expiryDate': DateInput()
+        }

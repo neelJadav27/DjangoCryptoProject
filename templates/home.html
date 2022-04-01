@@ -7,18 +7,18 @@
     <title>Home Page</title>
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-
 </head>
 <body>
 
-{% if cryptoData %}
 
+{% if cryptoData %}
+    <ol class="ol">
     {% for value in cryptoData %}
 
         <div class="data-block">
             <div class="grid">
-                <div> {{ value.id }} </div>
+
+                <div> <li> </li></div>
 
                 <div> <image src="{{ value.url }}"></image> </div>
 
@@ -91,9 +91,16 @@
         </div>
 
     {% endfor %}
+    </ol>
+
 {% endif %}
+    <form method="POST">
+    {% csrf_token %}
     {% for i in range %}
-        {{ i }}
+        <input type="submit" name="page{{ i }}" value={{ i }}>
+
+
     {% endfor %}
+    </form>
 </body>
 </html>
