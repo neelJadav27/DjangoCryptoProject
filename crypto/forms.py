@@ -40,10 +40,10 @@ class Crypto(forms.ModelForm):
         fields = ['name', 'alias']
 
 
-class PaymentForm(forms.ModelForm):
+class PaymentDetailsForm(forms.ModelForm):
     class Meta:
         model = PaymentInfo
-        fields = ['cardNo', 'expiryDate', 'CVV']
+        fields = ['cardNo', 'expiryDate', 'CVV' ]
         widgets = {
-            'expiryDate': DateInput()
-        }
+            'expiryDate': forms.DateInput(attrs={'id': 'expiryDate', 'name': 'expiryDate', 'type': 'date'})
+         }

@@ -18,20 +18,6 @@ import plotly.graph_objs as go
 from datetime import datetime, timedelta
 
 
-def addPayment(req):
-    if req.method == "POST":
-        paymentForm = PaymentForm(req.POST)
-
-        if paymentForm.is_valid():
-            return HttpResponse("Valid")
-        else:
-            return HttpResponse("Invalid")
-    else:
-        paymentForm = PaymentForm()
-
-    return render(req, "payment.html", {"paymentForm": paymentForm})
-
-
 def index(req):
     if not req.user:
         return HttpResponse("User does not exist")
@@ -176,8 +162,7 @@ def cryptoName(req, cryptoName):
         'cryptoDetails': cryptoData,
     }
 
-    return render(req, "cryptodetail.html",
-                  context)
+    return render(req, "cryptodetail.html",context)
 
 
 def defineCrypto(req, currency_name):
@@ -197,7 +182,6 @@ def getPrevDate():
     yesterday = yesterday.strftime('%Y-%m-%d')
     return yesterday, today
 
-
 def getPrevDate(prevDate):
     today = datetime.today()
     previousDate = datetime.today() - timedelta(prevDate)
@@ -206,8 +190,32 @@ def getPrevDate(prevDate):
     return previousDate, today
 
 
+
 def getPageRange(pageNumber, onEachSide, totalPage):
     range1 = max(pageNumber - onEachSide + 1, 1)
     range2 = min(pageNumber + onEachSide + 1, totalPage)
 
     return range1, range2
+
+def paymentDetails(req):
+    if req.method == "POST":
+        paymentForm = PaymentDetailsForm(req.POST)
+        if paymentForm.is_valid():
+            paymentData = paymentForm.save(commit=False)
+            paymentData.userId = User.objects.get(username = req.user.username)
+            paymentForm.save()
+            return HttpResponse("success")
+        else:
+            return HttpResponse("Invalid data")
+    else:
+        paymentForm = PaymentDetailsForm()
+    return render(req, "carddetails.html", {"paymentForm": paymentForm})
+
+
+def makePayment(req):
+    user = User.objects.get(username = req.user.username)
+    paymentData = PaymentInfo.objects.get(userId=user)
+    print(paymentData)
+    return HttpResponse("Check Terminal for OP")
+
+

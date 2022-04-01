@@ -42,3 +42,4 @@ class PaymentInfo(models.Model):
     expiryDate = models.DateField(null=False, blank=False)
     CVV = models.PositiveIntegerField(validators=[cvvReg], blank=False, null=False)
     userId = models.ForeignKey(User, on_delete=models.CASCADE)
+
