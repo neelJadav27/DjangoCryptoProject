@@ -10,11 +10,30 @@
     {% if isPaymentAdded %}
         <h1>Payment Added</h1>
     {% else %}
-        <h1>Payment Not Added</h1>
+        <h2> You do not have payment method added</h2>
+        <a href="{% url 'crypto:add_payment' %}?cryptoName={{ cryptoName }}"> Please Add Payment Method </a>
+
     {% endif %}
+    {% for data in cryptoData %}
+        <h2> {{ data.name }}</h2>
+        <h2> {{ alias }}</h2>
+    {% endfor %}
+
+{#    {{ userData.username }}#}
+    {% for data in userData %}
+        <h2> {{ data.username }}</h2>
+    {% endfor %}
+
+    <h2>{{ currentPrice }}</h2>
+    <h2>{{ circulatingSupply }}</h2>
+    <h2>{{ marketCap }}</h2>
+
 {#    {{ paymentForm }} #}
-    <input type="submit" value="Buy">
-    <input type="submit" value="Sell">
+
+    <input name="Buy" type="submit" value="Buy">
+    {% if userHasBought %}
+        <input name="Sell" type="submit" value="Sell">
+    {% endif %}
 </form>
 </body>
 </html>

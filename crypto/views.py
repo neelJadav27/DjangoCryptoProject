@@ -176,7 +176,7 @@ def cryptoName(req, cryptoName):
 
 
 def defineCrypto(req, currency_name):
-    data = yf.download(currency_name + "-USD", start=getPrevDate()[0], end=getPrevDate()[1], interval="90m")
+    data = yf.download(currency_name + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="90m")
     return render(req, 'defineCrypto.html', {'columns': data.columns, 'rows': data.to_dict('records')})
 
 
@@ -185,12 +185,12 @@ def profile(req):
     return render(req, 'profile.html', {'user_info': userInfo})
 
 
-def getPrevDate():
-    today = datetime.today() + timedelta(1)
-    yesterday = datetime.today() - timedelta(2)
-    today = today.strftime('%Y-%m-%d')
-    yesterday = yesterday.strftime('%Y-%m-%d')
-    return yesterday, today
+# def getPrevDate():
+#     today = datetime.today() + timedelta(1)
+#     yesterday = datetime.today() - timedelta(2)
+#     today = today.strftime('%Y-%m-%d')
+#     yesterday = yesterday.strftime('%Y-%m-%d')
+#     return yesterday, today
 
 
 def getPrevDate(prevDate):
@@ -215,6 +215,11 @@ def paymentDetails(req):
             paymentData = paymentForm.save(commit=False)
             paymentData.userId = User.objects.get(username=req.user.username)
             paymentForm.save()
+            redirectToWhere = req.GET.get("cryptoName", "")
+
+            if redirectToWhere != "":
+                return render(req, 'redirect.html',{'cryptoName':redirectToWhere})
+
             return HttpResponse("success")
         else:
             return HttpResponse("Invalid data")
@@ -222,24 +227,165 @@ def paymentDetails(req):
         paymentForm = PaymentDetailsForm()
 
     context = {
-        "paymentForm": paymentForm
-
+        "paymentForm": paymentForm,
     }
     return render(req, "carddetails.html", context)
 
 
+#
+# def makePayment(req):
+#     if req.method == "POST":
+#         if req.POST.get("Buy"):
+#             return HttpResponse("Buy Button")
+#             # if success full then save data and print the message
+#
+#         elif req.POST.get("Sell"):
+#             return HttpResponse("Sell Button")
+#             # if sucessfull then save data
+#         elif req.POST.get("MakeTransaction"):
+#             return HttpResponse("Redirect")
+#         else:
+#             return HttpResponse("Unknown Operation")
+#     else:
+#
+#         cryptoName = req.GET.get("cryptoName", "")
+#
+#         if cryptoName == "":
+#             return HttpResponse("Crypto Name Missing. Unable to make payment")
+#
+#         userData = User.objects.get(username=req.user.username)
+#         paymentData = PaymentInfo.objects.filter(userId=userData).values()
+#         cryptoData = Cr.objects.filter(alias=cryptoName).values()
+#         walletInfo = Wallet.objects.filter(userId=userData, crypto=cryptoData)
+#
+#         if paymentData.count() > 0:
+#             isPaymentAdded = True
+#         else:
+#             isPaymentAdded = False
+#
+#         if walletInfo.count() > 0:
+#             userHasBought: True
+#         else:
+#             userHasBought: False
+#
+#         ticker_yahoo = yf.Ticker(cryptoName + "-USD")
+#         ticket_history = ticker_yahoo.history()
+#         ticket_info = ticker_yahoo.info
+#         currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+#         circulatingSupply = ticket_info["circulatingSupply"]
+#         marketCap = ticket_info["marketCap"]
+#
+#         context = {
+#             "isPaymentAdded": isPaymentAdded,
+#             "cryptoData": cryptoData,
+#             "userData": userData,
+#             "currentPrice": currentPrice,
+#             "circulatingSupply": circulatingSupply,
+#             "marketCap": marketCap,
+#             "userHasBought": userHasBought,
+#         }
+#
+#     return render(req, "makepayment.html", context)
+
+
 def makePayment(req):
-    user = User.objects.get(username=req.user.username)
-    paymentData = PaymentInfo.objects.filter(userId=user).values()
+    if req.method == "POST":
+        if req.POST.get("Buy"):
 
-    if paymentData.count() > 0:
-        isPaymentAdded = True
+            return HttpResponse("Buy Button")
+            # if success full then save data and print the message
+
+        elif req.POST.get("Sell"):
+            return HttpResponse("Sell Button")
+            # if sucessfull then save data
+        elif req.POST.get("MakeTransaction"):
+            cryptoName = req.GET.get("cryptoName", "")
+
+            if cryptoName == "":
+                return HttpResponse("Crypto Name Missing. Unable to make payment")
+
+            userData = User.objects.filter(username=req.user.username).values()
+            userData2 = User.objects.get(username=req.user.username)
+            paymentData = PaymentInfo.objects.filter(userId=userData2).values()
+            cryptoData = Cr.objects.filter(alias=cryptoName).values()
+            cryptoData2 = Cr.objects.get(alias=cryptoName)
+            walletInfo = Wallet.objects.filter(userId=userData2, crypto=cryptoData2)
+
+            if paymentData.count() > 0:
+                isPaymentAdded = True
+            else:
+                isPaymentAdded = False
+
+            if walletInfo.count() > 0:
+                userHasBought = True
+            else:
+                userHasBought = False
+
+            ticker_yahoo = yf.Ticker(cryptoName + "-USD")
+            ticket_history = ticker_yahoo.history()
+            ticket_info = ticker_yahoo.info
+            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            circulatingSupply = ticket_info["circulatingSupply"]
+            marketCap = ticket_info["marketCap"]
+
+            context = {
+                "isPaymentAdded": isPaymentAdded,
+                "cryptoData": cryptoData,
+                "userData": userData,
+                "currentPrice": currentPrice,
+                "circulatingSupply": circulatingSupply,
+                "marketCap": marketCap,
+                "userHasBought": userHasBought,
+                "cryptoName": cryptoName,
+            }
+            #  print(userHasBought)
+            #   context["userHasBought"]=userHasBought
+
+            return render(req, "makepayment.html", context)
+        else:
+            return HttpResponse("Unknown Operation")
     else:
-        isPayMentAdded = False
 
-    context = {
-        "isPayMentAdded": isPayMentAdded,
-    }
+        cryptoName = req.GET.get("cryptoName", "")
 
-    return render(req,"makepayment.html",context)
-    return HttpResponse("Check Terminal for OP")
+        if cryptoName == "":
+            return HttpResponse("Crypto Name Missing. Unable to make payment")
+
+        userData = User.objects.filter(username=req.user.username).values()
+        userData2 = User.objects.get(username=req.user.username)
+        paymentData = PaymentInfo.objects.filter(userId=userData2).values()
+        cryptoData = Cr.objects.filter(alias=cryptoName).values()
+        cryptoData2 = Cr.objects.get(alias=cryptoName)
+        walletInfo = Wallet.objects.filter(userId=userData2, crypto=cryptoData2)
+
+        if paymentData.count() > 0:
+            isPaymentAdded = True
+        else:
+            isPaymentAdded = False
+
+        if walletInfo.count() > 0:
+            userHasBought = True
+        else:
+            userHasBought = False
+
+        ticker_yahoo = yf.Ticker(cryptoName + "-USD")
+        ticket_history = ticker_yahoo.history()
+        ticket_info = ticker_yahoo.info
+        currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+        circulatingSupply = ticket_info["circulatingSupply"]
+        marketCap = ticket_info["marketCap"]
+
+        context = {
+            "isPaymentAdded": isPaymentAdded,
+            "cryptoData": cryptoData,
+            "userData": userData,
+            "currentPrice": currentPrice,
+            "circulatingSupply": circulatingSupply,
+            "marketCap": marketCap,
+            "userHasBought": userHasBought,
+            "cryptoName": cryptoName,
+        }
+    #  print(userHasBought)
+    #   context["userHasBought"]=userHasBought
+
+    return render(req, "makepayment.html", context)

@@ -15,6 +15,9 @@ class User(User):
     sex = models.CharField(max_length=1, choices=sexChoices, default='F')
     dob = models.DateField(null=False, blank=False)
 
+    def __str__(self):
+        return str(self.id)
+
 
 class Crypto(models.Model):
     name = models.CharField(max_length=100, null=False, blank=False)
@@ -22,6 +25,9 @@ class Crypto(models.Model):
     available = models.FloatField(default=1000)
     description = models.CharField(max_length=2000, blank=True)
     url = models.TextField(default="https://raw.githubusercontent.com/neelJadav27/DjangoCryptoProject/main/NoImage.png")
+    def __str__(self):
+        return str(self.id)
+
 
 
 class Wallet(models.Model):
@@ -33,6 +39,9 @@ class Wallet(models.Model):
     operationChoice = [('B', "Buy"), ('S', "Sell")]
     type = models.CharField(max_length=1, choices=operationChoice, default='B')
     paymentDate = models.DateField(default=datetime.now())
+    def __str__(self):
+        return str(self.id)
+
 
 
 class PaymentInfo(models.Model):
@@ -43,4 +52,6 @@ class PaymentInfo(models.Model):
     expiryDate = models.DateField(null=False, blank=False)
     CVV = models.PositiveIntegerField(validators=[cvvReg], blank=False, null=False)
     userId = models.ForeignKey(User, on_delete=models.CASCADE)
+    def __str__(self):
+        return str(self.id)
 

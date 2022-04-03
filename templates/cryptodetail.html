@@ -91,9 +91,9 @@
     <h4> Circulating Supply : {{ circulatingSupply }}</h4>
     </form>
 
-    <form method="POST" action="{% url 'crypto:' cryptoName%}">
-        <input type="submit" value="Make A Transaction">
-
+    <form method="POST" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoName }} ">
+        {% csrf_token %}
+        <input name="MakeTransaction" type="submit" value="Make A Transaction">
     </form>
 </body>
 </html>
