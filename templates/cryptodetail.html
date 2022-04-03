@@ -18,8 +18,6 @@
         <input name="twoMonths"  value="2 month" type="submit"/>
 
 
-
-
     <div style="height: 100px; width: 300px;">
       <canvas style="background: azure" id="myChart{{ cryptoName }}"></canvas>
     </div>
@@ -72,14 +70,12 @@
                     display:false
                 }
             },
-
         }
       };
       window[myChartName] = new Chart(
         document.getElementById('myChart{{ cryptoName }}'),
         window[configName],
       );
-
 
 </script>
     {% if cryptoDetails %}
