@@ -48,3 +48,24 @@ class PaymentDetailsForm(forms.ModelForm):
             'expiryDate': forms.DateInput(attrs={'id': 'expiryDate', 'name': 'expiryDate', 'type': 'date'})
          }
 
+
+class MakePaymentForm(forms.ModelForm):
+    class Meta:
+        model=Wallet
+        fields=['userId','crypto','cryptoRate','amount','type','paymentDate','quantity']
+
+        '''userId = models.ForeignKey(User, on_delete=models.CASCADE)
+    crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
+    cryptoRate = models.FloatField(null=False, blank=False)
+    buyRate = models.FloatField(null=False, blank=False)
+    quantity = models.FloatField(null=False, blank=False)
+    operationChoice = [('B', "Buy"), ('S', "Sell")]
+    type = models.CharField(max_length=1, choices=operationChoice, default='B')
+    paymentDate = models.DateField(default=datetime.now())
+'''
+
+class EditProfileDetails(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email", "phoneNo"]
+

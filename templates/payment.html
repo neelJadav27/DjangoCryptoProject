@@ -1,0 +1,17 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Form</title>
+
+</head>
+<body>
+    <form  method="POST">
+
+        {% csrf_token %}
+        {{ paymentForm }}
+        <input type="submit" value="submit">
+    </form>
+</body>
+</html>

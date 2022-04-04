@@ -18,7 +18,8 @@
         <input name="twoMonths"  value="2 month" type="submit"/>
 
 
-    <div style="height: 100px; width: 300px;">
+    <div style="height: 150px; width: 300px;">
+
       <canvas style="background: azure" id="myChart{{ cryptoName }}"></canvas>
     </div>
 
@@ -80,10 +81,19 @@
 </script>
     {% if cryptoDetails %}
           {% for data in cryptoDetails %}
-              <h1> Alias : {{ data.alias }} </h1>
-              <h1> Name : {{ data.name }} </h1>
+              <h4> Alias : {{ data.alias }} </h4>
+              <h4> Name : {{ data.name }} </h4>
+              <h4> Description : {{ data.description }}</h4>
           {% endfor %}
       {% endif %}
+    <h4> Current Price : {{ currentPrice }}</h4>
+    <h4> Market Capacity : {{ marketCap }}</h4>
+    <h4> Circulating Supply : {{ circulatingSupply }}</h4>
+    </form>
+
+    <form method="POST" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoName }} ">
+        {% csrf_token %}
+        <input name="MakeTransaction" type="submit" value="Make A Transaction">
     </form>
 </body>
 </html>

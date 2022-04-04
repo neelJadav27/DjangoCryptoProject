@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form method="post">
+    {% csrf_token %}
+    {% if isPaymentAdded %}
+        <h1>Payment Added</h1>
+    {% else %}
+        <h2> You do not have payment method added</h2>
+        <a href="{% url 'crypto:add_payment' %}?cryptoName={{ cryptoName }}"> Please Add Payment Method </a>
+
+    {% endif %}
+    {% for data in cryptoData %}
+        <h2> {{ data.name }}</h2>
+        <h2> {{ alias }}</h2>
+    {% endfor %}
+
+{#    {{ userData.username }}#}
+    {% for data in userData %}
+        <h2> {{ data.username }}</h2>
+    {% endfor %}
+
+    <h2>{{ currentPrice }}</h2>
+    <h2>{{ circulatingSupply }}</h2>
+    <h2>{{ marketCap }}</h2>
+
+{#    {{ paymentForm }} #}
+
+    <input name="Buy" type="submit" value="Buy">
+    {% if userHasBought %}
+        <input name="Sell" type="submit" value="Sell">
+    {% endif %}
+</form>
+</body>
+</html>

@@ -8,6 +8,9 @@ urlpatterns = [
     path("signup", views.signup, name='signup'),
     path("home", views.home, name='home'),
     path("profile", views.profile, name='profile'),
+    path("makepayment", views.makePayment, name='makepayment'),
     path("add_payment", views.paymentDetails, name='add_payment'),
+    path("editProfile", views.editProfile, name='editProfile'),
+    path("profile", views.profile, name='profile'),
     path('<str:cryptoName>', views.cryptoName, name='cryptoName'),
 ]
