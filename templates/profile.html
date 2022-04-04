@@ -1,19 +1,24 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 </head>
 
 <body>
     {% csrf_token %}
-
-    First Name : {{ userData.first_name }}<br>
-    Last Name : {{ userData.last_name }}<br>
-    Phone Number : {{ userData.phoneNo }}<br>
-    Email : {{ userData.email }}<br>
-    Date of Birth : {{ userData.dob }}<br>
+    <h2>Personal Information</h2>
     <div><a href="{% url 'crypto:editProfile' %}">Edit Profile</a></div>
+    <div class="personalDetails">
+        <label for="">First Name :</label> {{ userData.first_name }}<br>
+        Last Name : {{ userData.last_name }}<br>
+        Phone Number : {{ userData.phoneNo }}<br>
+        Email : {{ userData.email }}<br>
+        Date of Birth : {{ userData.dob }}<br>
+    </div>
+
 
     {% if paymentInfo %}
         <form action="{% url 'crypto:add_payment' %}" method="POST">
@@ -27,6 +32,25 @@
     {% else %}
         <h2> Payment Method not added </h2>
     {% endif %}
+
+<h2>History</h2><br/>
+
+{% for data in history %}
+    CryptoName: {{ data.cryptoData.name }}<br>
+    {% if data.type == 'B' %}
+        Buy Rate: {{data.cryptoRate }}<br>
+    {% else %}
+        Sold Rate: {{data.cryptoRate }}<br>
+    {% endif %}
+    Amount Bought: {{ data.amount }}<br>
+    Quantity: {{ data.quantity }}<br>
+    Payment Date: {{ data.paymentDate}}<br>
+    {% if data.type == 'B' %}
+        Bought
+    {% else %}
+        Sold
+    {% endif %}<br><br><br><br>
+{% endfor %}
 
 </body>
 </html>
