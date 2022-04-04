@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+{% include 'header.html' %}
     <form action="{% url 'crypto:cryptoName' cryptoName%}" method="POST">
 
         {% csrf_token %}
@@ -96,5 +97,6 @@
         {% csrf_token %}
         <input name="MakeTransaction" type="submit" value="Make A Transaction">
     </form>
+{% include 'footer.html' %}
 </body>
 </html>
