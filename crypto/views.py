@@ -199,11 +199,16 @@ def editProfile(req):
 def profile(req):
     userData = User.objects.filter(username=req.user.username).values().first()
     paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
-    print(paymentInfo)
-    print(userData)
+    history = Wallet.objects.filter(userId=userData['id']).values()
+    for data in history:
+        print(data['crypto_id'])
+        cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
+        data.update({'cryptoData': cryptoData})
+    print(history)
     context = {
         "userData":userData,
-        "paymentInfo":paymentInfo
+        "paymentInfo":paymentInfo,
+        "history":history
     }
     return render(req, 'profile.html', context)
 
@@ -281,7 +286,7 @@ def makePayment(req):
 
             if amount >= userData['walletBalance']:
                 # below amount will be taken from user's card after using user's wallet balance
-                cardBalance = amount - userData['walletBalance']
+                cardBalance = amount - float(userData['walletBalance'])
                 print("CARD BALANCE : ", cardBalance)
                 # RESET BALANCE TO 0
                 User.objects.filter(username=req.user.username).update(walletBalance=0)

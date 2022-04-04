@@ -19,6 +19,26 @@ Card Number : {{ paymentInfo.cardNo }}<br>
 Expiry Date : {{ paymentInfo.expiryDate }}<br>
 CVV : {{ paymentInfo.CVV }}<br><br>
 
-<div><a href="{% url 'crypto:add_payment' %}">Edit Credit Info</a></div>
+<div><a href="{% url 'crypto:add_payment' %}">Edit Credit Info</a></div><br>
+<h2>History</h2><br/>
+
+{% for data in history %}
+    CryptoName: {{ data.cryptoData.name }}<br>
+    {% if data.type == 'B' %}
+        Buy Rate: {{data.cryptoRate }}<br>
+    {% else %}
+        Sold Rate: {{data.cryptoRate }}<br>
+    {% endif %}
+    Amount Bought: {{ data.amount }}<br>
+    Quantity: {{ data.quantity }}<br>
+    Payment Date: {{ data.paymentDate}}<br>
+    {% if data.type == 'B' %}
+        Bought
+    {% else %}
+        Sold
+    {% endif %}<br><br><br><br>
+{% endfor %}
+
+
 </body>
 </html>
