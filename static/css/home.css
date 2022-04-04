@@ -2,17 +2,25 @@ body,html{
     margin:0;
 }
 
+
 .grid{
     display: grid;
-    grid-template-columns: 20px 40px 150px 100px 300px;
-    grid-auto-columns: auto;
+    grid-template-columns: 10% 30% 10% 10% 10% 10% 20%;
+    width: 100%;
 }
-
+.white-text{
+    color: white;
+}
+.header-block{
+    margin-top: 50px;
+    background-color: #1c1c1c;
+}
 .data-block{
     height: 150px;
-    width: 500px;
-    background: beige;
+    width: 98%;
+    background: #212121;
     margin:10px;
+
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -39,4 +47,8 @@ label{
 .ol{
     list-style-position: inside;
     padding-left: 0;
+}
+
+.li{
+    color: red;
 }

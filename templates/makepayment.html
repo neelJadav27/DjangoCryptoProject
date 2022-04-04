@@ -20,6 +20,7 @@
     </script>
 </head>
 <body>
+{% include 'header.html' %}
 <form method="post" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoData.alias }}">
     {% csrf_token %}
     {% if isPaymentAdded %}
@@ -54,5 +55,6 @@
 
 
 </form>
+{% include 'footer.html' %}
 </body>
 </html>
