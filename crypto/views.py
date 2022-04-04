@@ -40,7 +40,7 @@ def login(req):
             if user is not None:
                 if user.is_active:
                     django.contrib.auth.login(req, user)
-                    req.session.set_expiry(3600)
+                    req.session.set_expiry(7200)
 
             user = authenticate(username=email, password=password)
             if user is not None:
@@ -239,7 +239,6 @@ def getPageRange(pageNumber, onEachSide, totalPage):
 
 
 def paymentDetails(req):
-
     if not req.user.is_authenticated:
         return HttpResponse("You are not logged in. Please Login")
 
@@ -249,7 +248,6 @@ def paymentDetails(req):
         if req.POST.get("EditCard"):
             userData = User.objects.get(username=req.user.username)
             cardInfo = PaymentInfo.objects.filter(userId=userData).values().first()
-            print(cardInfo)
             initial = {
                 'cardHolderName': cardInfo['cardHolderName'],
                 'cardNo': cardInfo['cardNo'],
@@ -295,7 +293,6 @@ def paymentDetails(req):
 
 
 def makePayment(req):
-
     if not req.user.is_authenticated:
         return HttpResponse("You are not logged in. Please Login")
 
@@ -337,7 +334,7 @@ def makePayment(req):
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
 
-            return HttpResponse("Buy Button")
+            return HttpResponse("Buy Done")
 
         elif req.POST.get("Sell"):
 
@@ -346,11 +343,11 @@ def makePayment(req):
             if cryptoName == "":
                 return HttpResponse("Crypto Name Missing. Unable to make payment")
 
-            cryptoValue = req.POST.get("cryptoValue")
+            cryptoValue = float(req.POST.get("sellCryptoValue"))
 
-            userData = User.objects.filter(username=req.user.username).values()
+            userData = User.objects.filter(username=req.user.username).values().first()
             cryptoData = Cr.objects.filter(alias=cryptoName).values()
-            walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id']).values()
+            walletInfo = Wallet.objects.filter(userId=userData['id'], crypto=cryptoData.first()['id']).values()
 
             ticker_yahoo = yf.Ticker(cryptoName + "-USD")
             ticket_history = ticker_yahoo.history()
@@ -359,14 +356,26 @@ def makePayment(req):
             cryptoAmount = 0
 
             for data in walletInfo:
-                # usdAmount += data['amount']
-                cryptoAmount += data['quantity']
+                if data['type'] == 'B':
+                    cryptoAmount += data['quantity']
+                elif data['type'] == 'S':
+                    cryptoAmount -= data['quantity']
 
-            usdAmount = currentPrice * cryptoAmount
-            print(usdAmount)
-            print(cryptoAmount)
-            return HttpResponse("Sell Button")
-            # if sucessfull then save data
+            usdAmount = float(currentPrice) * float(cryptoAmount)
+
+            if cryptoValue > cryptoAmount:
+                return HttpResponse("You are trying to sell more crypto than you own")
+
+            userId = User.objects.get(username=req.user.username)
+            cryptoId = Cr.objects.get(alias=cryptoName)
+
+            walletData = Wallet(userId=userId, crypto=cryptoId, cryptoRate=currentPrice,
+                                amount=usdAmount, quantity=cryptoValue, type='S')
+            walletData.save()
+            walletBalance = float(userData['walletBalance']) + usdAmount
+            User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
+            return HttpResponse("Sell Done")
+
         elif req.POST.get("MakeTransaction"):
 
             cryptoName = req.GET.get("cryptoName", "")
@@ -425,13 +434,6 @@ def makePayment(req):
         cryptoData = Cr.objects.filter(alias=cryptoName).values()
         walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id']).values()
 
-        usdAmount = 0
-        cryptoAmount = 0
-        for data in walletInfo:
-            usdAmount += data['amount']
-            cryptoAmount += data['quantity']
-
-
         cardInfo = paymentData.first()
 
         if paymentData.count() > 0:
@@ -441,10 +443,20 @@ def makePayment(req):
         else:
             isPaymentAdded = False
 
+        cryptoAmount = 0
+        userHasBought = False
         if walletInfo.count() > 0:
-            userHasBought = True
-        else:
-            userHasBought = False
+            cryptoAmount = 0
+            for data in walletInfo:
+                if data['type'] == 'B':
+                    cryptoAmount += data['quantity']
+                elif data['type'] == 'S':
+                    cryptoAmount -= data['quantity']
+
+            if cryptoAmount < 0:
+                return HttpResponse("Crypto Value below 0")
+            elif cryptoAmount > 0:
+                userHasBought = True
 
         ticker_yahoo = yf.Ticker(cryptoName + "-USD")
         ticket_history = ticker_yahoo.history()
@@ -462,8 +474,8 @@ def makePayment(req):
             "cardInfo": cardInfo,
             "circulatingSupply": circulatingSupply,
             "marketCap": marketCap,
-            'usdAmount':usdAmount,
-            'cryptoAmount':cryptoAmount,
+            # 'usdAmount': usdAmount,
+            'cryptoAmount': cryptoAmount,
         }
 
     return render(req, "makepayment.html", context)
