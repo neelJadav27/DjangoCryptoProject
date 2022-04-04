@@ -323,7 +323,7 @@ def makePayment(req):
 
             if amount >= userData['walletBalance']:
                 # below amount will be taken from user's card after using user's wallet balance
-                cardBalance = amount - userData['walletBalance']
+                cardBalance = amount - float(userData['walletBalance'])
                 # RESET BALANCE TO 0
                 User.objects.filter(username=req.user.username).update(walletBalance=0)
             else:
@@ -340,6 +340,31 @@ def makePayment(req):
             return HttpResponse("Buy Button")
 
         elif req.POST.get("Sell"):
+
+            cryptoName = req.GET.get("cryptoName", "")
+
+            if cryptoName == "":
+                return HttpResponse("Crypto Name Missing. Unable to make payment")
+
+            cryptoValue = req.POST.get("cryptoValue")
+
+            userData = User.objects.filter(username=req.user.username).values()
+            cryptoData = Cr.objects.filter(alias=cryptoName).values()
+            walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id']).values()
+
+            ticker_yahoo = yf.Ticker(cryptoName + "-USD")
+            ticket_history = ticker_yahoo.history()
+            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+
+            cryptoAmount = 0
+
+            for data in walletInfo:
+                # usdAmount += data['amount']
+                cryptoAmount += data['quantity']
+
+            usdAmount = currentPrice * cryptoAmount
+            print(usdAmount)
+            print(cryptoAmount)
             return HttpResponse("Sell Button")
             # if sucessfull then save data
         elif req.POST.get("MakeTransaction"):
@@ -398,7 +423,15 @@ def makePayment(req):
         userData = User.objects.filter(username=req.user.username).values()
         paymentData = PaymentInfo.objects.filter(userId=userData.first()['id']).values()
         cryptoData = Cr.objects.filter(alias=cryptoName).values()
-        walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id'])
+        walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id']).values()
+
+        usdAmount = 0
+        cryptoAmount = 0
+        for data in walletInfo:
+            usdAmount += data['amount']
+            cryptoAmount += data['quantity']
+
+
         cardInfo = paymentData.first()
 
         if paymentData.count() > 0:
@@ -429,6 +462,8 @@ def makePayment(req):
             "cardInfo": cardInfo,
             "circulatingSupply": circulatingSupply,
             "marketCap": marketCap,
+            'usdAmount':usdAmount,
+            'cryptoAmount':cryptoAmount,
         }
 
     return render(req, "makepayment.html", context)
