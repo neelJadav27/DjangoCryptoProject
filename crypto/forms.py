@@ -43,15 +43,16 @@ class Crypto(forms.ModelForm):
 class PaymentDetailsForm(forms.ModelForm):
     class Meta:
         model = PaymentInfo
-        fields = ['cardNo', 'expiryDate', 'CVV' ]
+        fields = ['cardNo', 'expiryDate', 'CVV']
         widgets = {
             'expiryDate': forms.DateInput(attrs={'id': 'expiryDate', 'name': 'expiryDate', 'type': 'date'})
-         }
+        }
+
 
 class MakePaymentForm(forms.ModelForm):
     class Meta:
-        model=Wallet
-        fields=['userId','crypto','cryptoRate','buyRate','type','paymentDate','quantity']
+        model = Wallet
+        fields = ['userId', 'crypto', 'cryptoRate', 'amount', 'type', 'paymentDate', 'quantity']
 
         '''userId = models.ForeignKey(User, on_delete=models.CASCADE)
     crypto = models.ForeignKey(Crypto, on_delete=models.CASCADE)
