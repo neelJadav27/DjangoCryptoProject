@@ -1,20 +1,12 @@
 import django.contrib.auth
-import requests
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
-from datetime import date
 from .models import *
 from .models import Crypto as Cr
 from .forms import *
-import numpy as np
 import pandas as pd
 import yfinance as yf
-from yahooquery import Screener
-import plotly.graph_objs as go
-from datetime import datetime, timedelta
-import yfinance as yf
-import plotly.graph_objs as go
 from datetime import datetime, timedelta
 
 
@@ -27,7 +19,15 @@ def index(req):
         # print(data)
         return HttpResponse("Logged in")
     else:
-        return HttpResponse("Please login")
+        return HttpResponse("You are not logged in. Please Login")
+
+
+def logout(req):
+    if req.user.is_authenticated:
+        django.contrib.auth.logout(req)
+        return HttpResponse("User Logged out")
+    else:
+        return HttpResponse("User is not logged in")
 
 
 def login(req):
@@ -40,6 +40,7 @@ def login(req):
             if user is not None:
                 if user.is_active:
                     django.contrib.auth.login(req, user)
+                    req.session.set_expiry(3600)
 
             user = authenticate(username=email, password=password)
             if user is not None:
@@ -115,7 +116,6 @@ def home(req):
 
     data = data.reset_index(level=0)
     data = data.drop('Adj Close', axis=1)
-
     pageRange = getPageRange(page, 5, (countData / 10))
 
     context = {
@@ -123,7 +123,7 @@ def home(req):
         'columns': data.columns,
         'rows': data.to_dict('records'),
         "cryptoData": cryptoData,
-        "range": range(pageRange[0], pageRange[1])
+        "range": range(int(pageRange[0]), int(pageRange[1]))
     }
 
     return render(req, "home.html", context)
@@ -181,40 +181,46 @@ def cryptoName(req, cryptoName):
 
 
 def editProfile(req):
+    if not req.user.is_authenticated:
+        return HttpResponse("You are not logged in. Please Login")
+
     if req.method == "POST":
         editProfileForm = EditProfileDetails(req.POST)
         if editProfileForm.is_valid():
+
             userId = req.user.username
-            User.objects.filter(username=req.user.username).update(first_name=editProfileForm.cleaned_data['first_name'],last_name=editProfileForm.cleaned_data['last_name'],email=editProfileForm.cleaned_data['email'],phoneNo=editProfileForm.cleaned_data['phoneNo'])
+            User.objects.filter(username=req.user.username).update(
+                first_name=editProfileForm.cleaned_data['first_name'],
+                last_name=editProfileForm.cleaned_data['last_name'], email=editProfileForm.cleaned_data['email'],
+                phoneNo=editProfileForm.cleaned_data['phoneNo'])
             # editProfileForm.save()
             return redirect('crypto:profile')
+        else:
+            return HttpResponse("Invalid Data")
     else:
         userData = User.objects.filter(username=req.user.username).values().first()
-        print(userData)
         context = {
             "userData": userData,
         }
-        return render(req, "editProfile.html",context)
+        return render(req, "editProfile.html", context)
+
 
 def profile(req):
+    if not req.user.is_authenticated:
+        return HttpResponse("User not logged in")
+
     userData = User.objects.filter(username=req.user.username).values().first()
     paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
-    print(paymentInfo)
-    print(userData)
+
+    if paymentInfo is not None:
+        updateCardInfo = {'cardNo': '**** **** ' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
+        paymentInfo.update(updateCardInfo)
+
     context = {
-        "userData":userData,
-        "paymentInfo":paymentInfo
+        "userData": userData,
+        "paymentInfo": paymentInfo
     }
     return render(req, 'profile.html', context)
-
-
-
-# def getPrevDate():
-#     today = datetime.today() + timedelta(1)
-#     yesterday = datetime.today() - timedelta(2)
-#     today = today.strftime('%Y-%m-%d')
-#     yesterday = yesterday.strftime('%Y-%m-%d')
-#     return yesterday, today
 
 
 def getPrevDate(prevDate):
@@ -233,16 +239,48 @@ def getPageRange(pageNumber, onEachSide, totalPage):
 
 
 def paymentDetails(req):
+
+    if not req.user.is_authenticated:
+        return HttpResponse("You are not logged in. Please Login")
+
     if req.method == "POST":
         paymentForm = PaymentDetailsForm(req.POST)
-        if paymentForm.is_valid():
-            paymentData = paymentForm.save(commit=False)
-            paymentData.userId = User.objects.get(username=req.user.username)
-            paymentForm.save()
-            redirectToWhere = req.GET.get("cryptoName", "")
 
-            if redirectToWhere != "":
-                return render(req, 'redirect.html', {'cryptoName': redirectToWhere})
+        if req.POST.get("EditCard"):
+            userData = User.objects.get(username=req.user.username)
+            cardInfo = PaymentInfo.objects.filter(userId=userData).values().first()
+            print(cardInfo)
+            initial = {
+                'cardHolderName': cardInfo['cardHolderName'],
+                'cardNo': cardInfo['cardNo'],
+                'expiryDate': cardInfo['expiryDate'],
+                'CVV': cardInfo['CVV'],
+            }
+
+            paymentForm = PaymentDetailsForm(initial=initial)
+
+            return render(req, 'carddetails.html', {'paymentForm': paymentForm})
+
+        elif paymentForm.is_valid():
+            userData = User.objects.get(username=req.user.username)
+            cardInfo = PaymentInfo.objects.filter(userId=userData).values().first()
+
+            if cardInfo is None:
+                paymentData = paymentForm.save(commit=False)
+                paymentData.userId = User.objects.get(username=req.user.username)
+                # paymentForm.save()
+                redirectToWhere = req.GET.get("cryptoName", "")
+
+                if redirectToWhere != "":
+                    return render(req, 'redirect.html', {'cryptoName': redirectToWhere})
+            else:
+                cardHolderName = paymentForm.cleaned_data['cardHolderName']
+                cardNo = paymentForm.cleaned_data['cardNo']
+                expiryDate = paymentForm.cleaned_data['expiryDate']
+                CVV = paymentForm.cleaned_data['CVV']
+                PaymentInfo.objects.filter(userId=userData).update(cardHolderName=cardHolderName, cardNo=cardNo,
+                                                                   expiryDate=expiryDate, CVV=CVV)
+                return HttpResponse("Card Info Updated")
 
             return HttpResponse("success")
         else:
@@ -257,6 +295,10 @@ def paymentDetails(req):
 
 
 def makePayment(req):
+
+    if not req.user.is_authenticated:
+        return HttpResponse("You are not logged in. Please Login")
+
     if req.method == "POST":
         if req.POST.get("Buy"):
 
@@ -282,13 +324,11 @@ def makePayment(req):
             if amount >= userData['walletBalance']:
                 # below amount will be taken from user's card after using user's wallet balance
                 cardBalance = amount - userData['walletBalance']
-                print("CARD BALANCE : ", cardBalance)
                 # RESET BALANCE TO 0
                 User.objects.filter(username=req.user.username).update(walletBalance=0)
             else:
                 # below amount will REMAIN after using user's wallet balance
                 remainingWalletBalance = float(userData['walletBalance']) - float(amount)
-                print("REMAINING BALANCE : ", remainingWalletBalance)
                 # UPDATE THE BALANCE WITH BALANCE-AMOUNT
                 User.objects.filter(username=req.user.username).update(
                     walletBalance=remainingWalletBalance)
@@ -296,16 +336,14 @@ def makePayment(req):
             walletData = Wallet(userId=userId, crypto=cryptoId, cryptoRate=currentPrice,
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
-            # print(walletData)
-            # walletData = Wallet()
 
             return HttpResponse("Buy Button")
-            # if success full then save data and print the message
 
         elif req.POST.get("Sell"):
             return HttpResponse("Sell Button")
             # if sucessfull then save data
         elif req.POST.get("MakeTransaction"):
+
             cryptoName = req.GET.get("cryptoName", "")
 
             if cryptoName == "":
@@ -315,12 +353,12 @@ def makePayment(req):
             paymentData = PaymentInfo.objects.filter(userId=userData.first()['id']).values()
             cryptoData = Cr.objects.filter(alias=cryptoName).values()
             walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id'])
+            cardInfo = paymentData.first()
 
             if paymentData.count() > 0:
                 isPaymentAdded = True
-                cardInfo = paymentData.first()
-                update1 = {'cardNo': '**** **** ' + str(cardInfo['cardNo'])[8:12]}
-                cardInfo.update(update1)
+                updateCardInfo = {'cardNo': '**** **** ' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
+                cardInfo.update(updateCardInfo)
             else:
                 isPaymentAdded = False
 
@@ -361,12 +399,12 @@ def makePayment(req):
         paymentData = PaymentInfo.objects.filter(userId=userData.first()['id']).values()
         cryptoData = Cr.objects.filter(alias=cryptoName).values()
         walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id'])
+        cardInfo = paymentData.first()
 
         if paymentData.count() > 0:
             isPaymentAdded = True
-            cardInfo = paymentData.first()
-            update1 = {'cardNo': '**** **** ' + str(cardInfo['cardNo'])[8:12]}
-            cardInfo.update(update1)
+            updateCardInfo = {'cardNo': '**** **** ' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
+            cardInfo.update(updateCardInfo)
         else:
             isPaymentAdded = False
 
@@ -394,4 +432,3 @@ def makePayment(req):
         }
 
     return render(req, "makepayment.html", context)
-

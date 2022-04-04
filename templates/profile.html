@@ -6,19 +6,27 @@
 </head>
 
 <body>
-{% csrf_token %}
-First Name : {{ userData.first_name }}<br>
-Last Name : {{ userData.last_name }}<br>
-Phone Number : {{ userData.phoneNo }}<br>
-Email : {{ userData.email }}<br>
-Date of Birth : {{ userData.dob }}<br>
+    {% csrf_token %}
 
-<div><a href="{% url 'crypto:editProfile' %}">Edit Profile</a></div>
-<h2>Card Information</h2><br>
-Card Number : {{ paymentInfo.cardNo }}<br>
-Expiry Date : {{ paymentInfo.expiryDate }}<br>
-CVV : {{ paymentInfo.CVV }}<br><br>
+    First Name : {{ userData.first_name }}<br>
+    Last Name : {{ userData.last_name }}<br>
+    Phone Number : {{ userData.phoneNo }}<br>
+    Email : {{ userData.email }}<br>
+    Date of Birth : {{ userData.dob }}<br>
+    <div><a href="{% url 'crypto:editProfile' %}">Edit Profile</a></div>
 
-<div><a href="{% url 'crypto:add_payment' %}">Edit Credit Info</a></div>
+    {% if paymentInfo %}
+        <form action="{% url 'crypto:add_payment' %}" method="POST">
+            {% csrf_token %}
+            <h2>Card Information</h2><br>
+            Card Number : {{ paymentInfo.cardNo }}<br>
+            Expiry Date : {{ paymentInfo.expiryDate }}<br>
+            CVV : {{ paymentInfo.CVV }}<br><br>
+            <input type="submit" name="EditCard" value="Edit Credit Info">
+        </form>
+    {% else %}
+        <h2> Payment Method not added </h2>
+    {% endif %}
+
 </body>
 </html>

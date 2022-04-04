@@ -13,7 +13,6 @@
         function USDPriceChanged()
         {
             let USDValue = document.getElementById("USDPrice").value
-            alert(USDValue)
             document.getElementById("cryptoValue").value = USDValue / parseFloat({{ currentPrice }});
         }
 
