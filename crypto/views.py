@@ -240,6 +240,7 @@ def makePayment(req):
 
             cryptoName = req.GET.get('cryptoName')
             cryptoDbData = Cr.objects.filter(alias=cryptoName).values().first()
+            userData = User.objects.filter(username=req.user.username).values().first()
 
             if cryptoDbData['available'] - float(cryptoValue) >= 0:
                 Cr.objects.filter(alias=cryptoName).update(available=cryptoDbData['available'] - float(cryptoValue))
@@ -252,9 +253,24 @@ def makePayment(req):
             ticker_yahoo = yf.Ticker(cryptoName + "-USD")
             ticket_history = ticker_yahoo.history()
             currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            amount = float(currentPrice) * float(cryptoValue)
+
+            if amount >= userData['walletBalance']:
+                # below amount will be taken from user's card after using user's wallet balance
+                cardBalance = amount - userData['walletBalance']
+                print("CARD BALANCE : ", cardBalance)
+                # RESET BALANCE TO 0
+                User.objects.filter(username=req.user.username).update(walletBalance=0)
+            else:
+                # below amount will REMAIN after using user's wallet balance
+                remainingWalletBalance = float(userData['walletBalance']) - float(amount)
+                print("REMAINING BALANCE : ", remainingWalletBalance)
+                # UPDATE THE BALANCE WITH BALANCE-AMOUNT
+                User.objects.filter(username=req.user.username).update(
+                    walletBalance=remainingWalletBalance)
 
             walletData = Wallet(userId=userId, crypto=cryptoId, cryptoRate=currentPrice,
-                                amount=float(currentPrice) * float(cryptoValue), quantity=cryptoValue, type='B')
+                                amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
             # print(walletData)
             # walletData = Wallet()
