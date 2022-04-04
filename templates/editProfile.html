@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<form method="post">
+    {% csrf_token %}
+    First Name: <input name="first_name" value='{{ userData.first_name }}' ><br>
+    Last Name : <input name="last_name" value='{{ userData.last_name }}' ><br>
+    Email : <input name="email" value='{{ userData.email }}' ><br>
+    Phone Number : <input name="phoneNo" value='{{ userData.phoneNo }}' ><br>
+    <br/><br/><br/>
+    <input type="submit" value="Save"/>
+</form>
+
+{#<form method="post">#}
+{#    {% csrf_token %}#}
+{##}
+{#    <input type="submit" value="Add Method">#}
+{#</form>#}
+</body>
+</html>

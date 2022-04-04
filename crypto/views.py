@@ -180,9 +180,33 @@ def cryptoName(req, cryptoName):
 #     return render(req, 'defineCrypto.html', {'columns': data.columns, 'rows': data.to_dict('records')})
 
 
+def editProfile(req):
+    if req.method == "POST":
+        editProfileForm = EditProfileDetails(req.POST)
+        if editProfileForm.is_valid():
+            userId = req.user.username
+            User.objects.filter(username=req.user.username).update(first_name=editProfileForm.cleaned_data['first_name'],last_name=editProfileForm.cleaned_data['last_name'],email=editProfileForm.cleaned_data['email'],phoneNo=editProfileForm.cleaned_data['phoneNo'])
+            # editProfileForm.save()
+            return redirect('crypto:profile')
+    else:
+        userData = User.objects.filter(username=req.user.username).values().first()
+        print(userData)
+        context = {
+            "userData": userData,
+        }
+        return render(req, "editProfile.html",context)
+
 def profile(req):
-    userInfo = req.user
-    return render(req, 'profile.html', {'user_info': userInfo})
+    userData = User.objects.filter(username=req.user.username).values().first()
+    paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
+    print(paymentInfo)
+    print(userData)
+    context = {
+        "userData":userData,
+        "paymentInfo":paymentInfo
+    }
+    return render(req, 'profile.html', context)
+
 
 
 # def getPrevDate():
@@ -370,3 +394,4 @@ def makePayment(req):
         }
 
     return render(req, "makepayment.html", context)
+

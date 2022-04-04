@@ -45,6 +45,9 @@ class Wallet(models.Model):
     type = models.CharField(max_length=1, choices=operationChoice, default='B')
     paymentDate = models.DateField(default=now)
 
+    def _str_(self):
+        return str(self.id)
+
 
 class PaymentInfo(models.Model):
     reg = RegexValidator(regex="^[0-9]{12}$", message="THIS WILL ONLY ALLOW TWELVE DIGIT NUMBERS")
