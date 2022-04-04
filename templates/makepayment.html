@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
      <script type="text/javascript">
-         function cryptoPriceChanged()
+         function cryptoValueChanged()
         {
             let cryptoValue = document.getElementById("cryptoValue").value;
             document.getElementById("USDPrice").value = parseFloat({{ currentPrice }}) * cryptoValue;
@@ -13,10 +13,43 @@
         function USDPriceChanged()
         {
             let USDValue = document.getElementById("USDPrice").value
-            alert(USDValue)
             document.getElementById("cryptoValue").value = USDValue / parseFloat({{ currentPrice }});
         }
+        function SellUSDPriceChanged()
+        {
+            let USDValue = document.getElementById("sellUSDValue").value
+            let cryptoValue = USDValue / parseFloat({{ currentPrice }});
+            if(cryptoValue > {{ cryptoAmount }})
+            {
+                alert("The USD amount exceeds than your owned amount crypto")
+                document.getElementById('sellUSDValue').value = parseFloat({{ currentPrice }}) * {{ cryptoAmount }};
+                document.getElementById('sellCryptoValue').value = {{ cryptoAmount }};
+            }
+            else
+            {
+                document.getElementById("sellCryptoValue").value = USDValue / parseFloat({{ currentPrice }});
+            }
 
+        }
+        function SellCryptoValueChanged()
+        {
+            let cryptoValue = document.getElementById("sellCryptoValue").value;
+            if(cryptoValue > {{ cryptoAmount }})
+            {
+                alert("The crypto amount exceeds than your owned crypto")
+                document.getElementById('sellUSDValue').value = parseFloat({{ currentPrice }}) * {{ cryptoAmount }};
+                document.getElementById('sellCryptoValue').value = {{ cryptoAmount }};
+            }
+            else
+            {
+                  document.getElementById("sellUSDValue").value = parseFloat({{ currentPrice }}) * cryptoValue;
+            }
+        }
+        window.onload =
+        function updateValue()
+        {
+            document.getElementById('sellUSDValue').value = parseFloat({{ currentPrice }}) * {{ cryptoAmount }}
+        };
     </script>
 </head>
 <body>
@@ -41,14 +74,17 @@
     Circulating Supply : {{ circulatingSupply }} <br/>
     Market Capacity : {{ marketCap }} <br/>
 
-    {{ cryptoData.alias }} : <input name="cryptoValue" id="cryptoValue" type="text" value="1" oninput="cryptoPriceChanged()"/>
+    {{ cryptoData.alias }} : <input name="cryptoValue" id="cryptoValue" type="text" value="1" oninput="cryptoValueChanged()"/>
     USD : <input name="USDPrice" id="USDPrice" type="text" value={{ currentPrice }} oninput="USDPriceChanged()" /> <br/>
 
 {#    {{ paymentForm }} #}
     {% if isPaymentAdded %}
-        <input name="Buy" type="submit" value="Buy">
+        <input name="Buy" type="submit" value="Buy"> <br>
     {% endif %}
     {% if userHasBought %}
+        You hold : <input type="text" name="sellCryptoValue" id="sellCryptoValue" value="{{ cryptoAmount }}" oninput="SellCryptoValueChanged()"> {{ cryptoData.alias }} <br>
+        USD Worth : <input type="text" name="sellUSDValue" id="sellUSDValue" value="{{ usdWorth }}" oninput="SellUSDPriceChanged()">
+
         <input name="Sell" type="submit" value="Sell">
     {% endif %}
 
