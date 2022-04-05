@@ -227,7 +227,7 @@ def profile(req):
     paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
 
     history = Wallet.objects.filter(userId=userData['id']).values()
-    
+
     for data in history:
         print(data['crypto_id'])
         cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
