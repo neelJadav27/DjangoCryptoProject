@@ -74,8 +74,11 @@ def signup(req):
             password = signUpForm.cleaned_data['password']
             sex = signUpForm.cleaned_data['sex']
             phoneNo = signUpForm.cleaned_data['phoneNo']
-            userData = User.objects.create_user(email=email, username=email, dob=dob, first_name=firstName,
-                                                last_name=lastName, password=password, sex=sex, phoneNo=phoneNo)
+            try:
+                userData = User.objects.create_user(email=email, username=email, dob=dob, first_name=firstName,
+                                                   last_name=lastName, password=password, sex=sex, phoneNo=phoneNo)
+            except:
+                return redirect('crypto:signup')
             userData.save()
 
             return redirect('crypto:login')
