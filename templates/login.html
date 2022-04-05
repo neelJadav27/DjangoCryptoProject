@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 
-	<title>Crypto-Bazaar LogIn</title>
+	<title>Login</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 <!--===============================================================================================-->
@@ -39,6 +39,8 @@
 			<div class="login100-more" style="background-image: url('/static/img/bg-01.jpg');"></div>
 
 			<div class="wrap-login100 p-l-50 p-r-50 p-t-72 p-b-50">
+
+                <h4>{{ status }}</h4>
 				<form class="login100-form validate-form" method="post">
                     {% csrf_token %}
 					<span class="login100-form-title p-b-59">

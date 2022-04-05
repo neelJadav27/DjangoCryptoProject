@@ -11,12 +11,11 @@ class Demo(models.Model):
 
 class User(User):
     reg = RegexValidator(regex="^[0-9]{10}$", message="THIS WILL ONLY ALLOW TEN DIGIT NUMBERS")
-    phoneNo = models.PositiveIntegerField(validators=[reg], blank=False, null=False)
+    phoneNo = models.BigIntegerField(validators=[reg], blank=False, null=False)
     sexChoices = [('M', "Male"), ('F', "Female"), ('O', "Others")]
     sex = models.CharField(max_length=1, choices=sexChoices, default='F')
     dob = models.DateField(null=False, blank=False)
     walletBalance = models.DecimalField(max_digits=100, decimal_places=4, default=0)
-
     def __str__(self):
         return str(self.id)
 
@@ -45,10 +44,13 @@ class Wallet(models.Model):
     type = models.CharField(max_length=1, choices=operationChoice, default='B')
     paymentDate = models.DateField(default=now)
 
+    def _str_(self):
+        return str(self.id)
+
 
 class PaymentInfo(models.Model):
-    reg = RegexValidator(regex="^[0-9]{12}$", message="THIS WILL ONLY ALLOW TWELVE DIGIT NUMBERS")
-    cvvReg = RegexValidator(regex="^[0-9]{3}$", message="THIS WILL ONLY ALLOW THREE DIGIT NUMBERS")
+    reg = RegexValidator(regex="^[0-9]{16}$", message="THIS WILL ONLY ALLOW 16 DIGIT NUMBERS")
+    cvvReg = RegexValidator(regex="^[0-9]{3}$", message="THIS WILL ONLY ALLOW 3 DIGIT NUMBERS")
     cardHolderName = models.CharField(max_length=100, blank=False, null=False)
     cardNo = models.BigIntegerField(validators=[reg], blank=False, null=False)
     expiryDate = models.DateField(null=False, blank=False)

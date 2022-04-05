@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="{% static 'css/editProfile.css' %}">
+</head>
+<body style="margin-top: 90px;">
+
+{% include 'header.html' %}
+
+
+<div style="display: flex;align-items: center;justify-content: center;">
+<div class="outerDiv">
+    <h2 style="color: white;margin-bottom: 20px">Edit Profile Details</h2>
+    <form style="display:flex; flex-direction:column;justify-content: center;align-items: center;width: 80%" method="post">
+        {% csrf_token %}
+            <div class="eachRow">
+                <p class="title">First Name: </p>
+                <input class="inputStyle" name="first_name" value='{{ userData.first_name }}' >
+            </div><br>
+            <div class="eachRow">
+                <p class="title">Last Name : </p>
+                <input class="inputStyle" name="last_name" value='{{ userData.last_name }}' >
+            </div><br>
+            <div class="eachRow">
+                <p class="title">Phone Number : </p>
+                <input class="inputStyle" name="phoneNo" value='{{ userData.phoneNo }}' >
+            </div><br>
+        <div class="submit">
+            <input style="width: 80%;height: 30px;font-size: 19px;text-align: center;" type="submit" value="Save"/>
+        </div>
+    </form>
+</div>
+</div>
+</body>
+</html>
