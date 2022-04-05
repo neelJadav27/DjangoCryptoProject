@@ -30,10 +30,18 @@
             <li class="nav-item">
             <a class="nav-link" href="{% url 'crypto:profile' %}">Profile</a>
           </li>
+            {% if request.user.is_authenticated %}
 
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'crypto:logout' %}">Log Out</a>
-          </li>
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'crypto:logout' %}">Log out</a>
+              </li>
+                {% else %}
+                <li class="nav-item">
+                <a class="nav-link" href="{% url 'crypto:login' %}">Log in</a>
+              </li>
+             {% endif %}
+
+
         </ul>
       </div>
     </div>
