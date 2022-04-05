@@ -13,13 +13,13 @@
 {% include 'header.html' %}
 <div class="fixed-top white-text header-block grid">
 
-    <div>Sr. No</div>
-    <div>Name</div>
-    <div>Price</div>
-    <div>High</div>
-    <div>Low</div>
-    <div>Volume</div>
-    <div>Last 7 Days</div>
+    <div>SR. NO</div>
+    <div>NAME</div>
+    <div>PRICE ($)</div>
+    <div>CIRCULATING SUPPLY</div>
+    <div>MARKET CAP ($)</div>
+    <div>VOLUME</div>
+    <div>LAST 24 HRS</div>
 </div>
 {% if cryptoData %}
     <ol class="ol">
@@ -30,17 +30,17 @@
 
                 <div class="white-text"> {{ value.id }}</div>
 
-                <div> <image src="{{ value.url }}" style="height: 50px; width:50px"></image>
+                <div class = "white-text"> <image src="{{ value.url }}" style="height: 50px; width:50px"></image>
                 <a class = "white-text" href={% url 'crypto:cryptoName' value.alias%}> {{ value.name}} ( - {{ value.alias  }} ) </a>
                 </div>
-{#            <div class = "white-text">{{ value.currentPrice }}</div>#}
-{#            <div class = "white-text">{{ value.circulatingSupply }}</div>#}
-{#            <div class = "white-text">{{ value.marketCap }}</div>#}
-{#            <div class = "white-text">{{ value.volume }}</div>#}
-            <div>price</div>
-            <div>circulating supply</div>
-            <div>market cap</div>
-            <div>volume</div>
+            <div class = "white-text">{{ value.currentPrice }}</div>
+            <div class = "white-text">{{ value.circulatingSupply }}</div>
+            <div class = "white-text">{{ value.marketCap }}</div>
+            <div class = "white-text">{{ value.volume }}</div>
+{#            <div class="white-text">price</div>#}
+{#            <div class="white-text">circulating supply</div>#}
+{#            <div class="white-text">market cap</div>#}
+{#            <div class="white-text">volume</div>#}
                 <div >
                   <canvas style="background: #16162b" id="myChart{{ value.id }}"></canvas>
                 </div>
@@ -111,11 +111,13 @@
 {% endif %}
     <form method="POST">
     {% csrf_token %}
+    <div class="page-number">
     {% for i in range %}
-        <input type="submit" name="page{{ i }}" value={{ i }}>
+        <input class="page-button" type="submit" name="page{{ i }}" value={{ i }}>
 
 
     {% endfor %}
+    </div>
     </form>
 {% include 'footer.html' %}
 </body>
