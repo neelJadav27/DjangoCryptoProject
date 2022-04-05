@@ -1,0 +1,39 @@
+.outerDiv{
+    border: 2px solid lightslategrey;
+    width: 38%;
+    display: flex;
+    margin-left: 20px;
+    font-family: Calibri;
+    height: 450px;
+    flex-direction: column;
+    border-radius: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+.eachRow{
+    justify-content: center;
+    align-items: center;
+    width:80%;
+    height: 20%;
+    flex-direction: row;
+    display: flex;
+}
+
+.title{
+    color: white;
+    font-size: 20px;
+    width: 60%;
+}
+
+.inputStyle{
+
+    width: 65%;
+    height: 25px;
+}
+.submit{
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    width: 100%;
+}

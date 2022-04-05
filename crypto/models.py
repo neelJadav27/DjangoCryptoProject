@@ -16,7 +16,6 @@ class User(User):
     sex = models.CharField(max_length=1, choices=sexChoices, default='F')
     dob = models.DateField(null=False, blank=False)
     walletBalance = models.DecimalField(max_digits=100, decimal_places=4, default=0)
-
     def __str__(self):
         return str(self.id)
 

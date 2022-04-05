@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 </head>
 
-<body>
+<body style="margin-top: 90px;">
+    {% include 'header.html' %}
     {% csrf_token %}
     <div class="personalHeader">
         <h2 class="title">Personal Information</h2>
-        <div class="editURL"><a href="{% url 'crypto:editProfile' %}">Edit Profile</a></div>
+        <div class="editURL"><a href="{% url 'crypto:editProfile' %}" style="color: white">Edit Profile</a></div>
     </div>
     <div class="personalDetails">
         <table>
@@ -92,13 +93,14 @@
 <table class="history2">
 {% for data in history %}
 <tr style="width: 100%">
-       <th> <div> {{ data.cryptoData.name }} </div></th>
-
+       <th>  {{ data.cryptoData.name }} </th>
+        <th>
         {% if data.type == 'B' %}
-            <th><div>{{data.cryptoRate }} </div></th>
+            {{data.cryptoRate }}
         {% else %}
-            <th>{{data.cryptoRate }}</th>
+            {{data.cryptoRate }}
         {% endif %}
+        </th>
         <th>{{ data.amount }}</th>
         <th>{{ data.quantity }}</th>
         <th> {{ data.paymentDate}}</th>
@@ -109,7 +111,6 @@
         {% endif %}
     </tr>
 {% endfor %}
-</div>
 </table>
 </body>
 </html>

@@ -205,7 +205,7 @@ def editProfile(req):
             userId = req.user.username
             User.objects.filter(username=req.user.username).update(
                 first_name=editProfileForm.cleaned_data['first_name'],
-                last_name=editProfileForm.cleaned_data['last_name'], email=editProfileForm.cleaned_data['email'],
+                last_name=editProfileForm.cleaned_data['last_name'],
                 phoneNo=editProfileForm.cleaned_data['phoneNo'])
             # editProfileForm.save()
             return redirect('crypto:profile')
@@ -227,6 +227,7 @@ def profile(req):
     paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
 
     history = Wallet.objects.filter(userId=userData['id']).values()
+    
     for data in history:
         print(data['crypto_id'])
         cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
