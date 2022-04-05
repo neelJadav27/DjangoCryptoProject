@@ -45,7 +45,19 @@ class PaymentDetailsForm(forms.ModelForm):
         model = PaymentInfo
         fields = ['cardHolderName', 'cardNo', 'expiryDate', 'CVV']
         widgets = {
-            'expiryDate': forms.DateInput(attrs={'id': 'expiryDate', 'name': 'expiryDate', 'type': 'date'})
+            'cardHolderName': forms.TextInput(
+                attrs={'name': 'cardHolderName', 'id': 'cardHolderName', 'class': 'form-control mb-3',
+                       'placeholder': 'John Doe'}),
+            'cardNo': forms.TextInput(
+                attrs={'name': 'cardNo', 'id': 'cardNo', 'class': 'form-control mb-3',
+                       'placeholder': '1234123412341234'}),
+            'expiryDate': forms.DateInput(
+                attrs={'name': 'expiryDate', 'id': 'expiryDate', 'class': 'form-control mb-3', 'type': 'date',
+                       'placeholder': ''}),
+            'CVV': forms.PasswordInput(
+                attrs={'name': 'CVV', 'id': 'CVV', 'class': 'form-control mb-3 pt-2',
+                       'placeholder': '123'}),
+
         }
 
 

@@ -267,16 +267,17 @@ def paymentDetails(req):
         if req.POST.get("EditCard"):
             userData = User.objects.get(username=req.user.username)
             cardInfo = PaymentInfo.objects.filter(userId=userData).values().first()
+            print(cardInfo)
             initial = {
                 'cardHolderName': cardInfo['cardHolderName'],
                 'cardNo': cardInfo['cardNo'],
-                'expiryDate': cardInfo['expiryDate'],
                 'CVV': cardInfo['CVV'],
+                'expiryDate': cardInfo['expiryDate'],
             }
 
             paymentForm = PaymentDetailsForm(initial=initial)
 
-            return render(req, 'carddetails.html', {'paymentForm': paymentForm})
+            return render(req, 'addpayment.html', {'paymentForm': paymentForm})
 
         elif paymentForm.is_valid():
             userData = User.objects.get(username=req.user.username)
@@ -308,7 +309,7 @@ def paymentDetails(req):
     context = {
         "paymentForm": paymentForm,
     }
-    return render(req, "carddetails.html", context)
+    return render(req, "addpayment.html", context)
 
 
 def makePayment(req):
@@ -408,7 +409,8 @@ def makePayment(req):
             userData = User.objects.filter(username=req.user.username).values()
             paymentData = PaymentInfo.objects.filter(userId=userData.first()['id']).values()
             cryptoData = Cr.objects.filter(alias=cryptoName).values()
-            walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id'])
+            walletInfo = Wallet.objects.filter(userId=userData.first()['id'], crypto=cryptoData.first()['id']).values()
+
             cardInfo = paymentData.first()
 
             if paymentData.count() > 0:
@@ -418,10 +420,20 @@ def makePayment(req):
             else:
                 isPaymentAdded = False
 
+            cryptoAmount = 0
+            userHasBought = False
             if walletInfo.count() > 0:
-                userHasBought = True
-            else:
-                userHasBought = False
+                cryptoAmount = 0
+                for data in walletInfo:
+                    if data['type'] == 'B':
+                        cryptoAmount += data['quantity']
+                    elif data['type'] == 'S':
+                        cryptoAmount -= data['quantity']
+
+                if cryptoAmount < 0:
+                    return HttpResponse("Crypto Value below 0")
+                elif cryptoAmount > 0:
+                    userHasBought = True
 
             ticker_yahoo = yf.Ticker(cryptoName + "-USD")
             ticket_history = ticker_yahoo.history()
@@ -439,6 +451,8 @@ def makePayment(req):
                 "cardInfo": cardInfo,
                 "circulatingSupply": circulatingSupply,
                 "marketCap": marketCap,
+                # 'usdAmount': usdAmount,
+                'cryptoAmount': cryptoAmount,
             }
 
             return render(req, "makepayment.html", context)
@@ -486,7 +500,7 @@ def makePayment(req):
         currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
         circulatingSupply = ticket_info["circulatingSupply"]
         marketCap = ticket_info["marketCap"]
-
+        print(userData)
         context = {
             "isPaymentAdded": isPaymentAdded,
             "userHasBought": userHasBought,
