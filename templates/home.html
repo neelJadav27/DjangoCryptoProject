@@ -8,9 +8,19 @@
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body style="margin-top: 90px;">
 
+{% include 'header.html' %}
+<div class="fixed-top white-text header-block grid">
 
+    <div>Sr. No</div>
+    <div>Name</div>
+    <div>Price</div>
+    <div>High</div>
+    <div>Low</div>
+    <div>Volume</div>
+    <div>Last 7 Days</div>
+</div>
 {% if cryptoData %}
     <ol class="ol">
     {% for value in cryptoData %}
@@ -18,16 +28,21 @@
         <div class="data-block">
             <div class="grid">
 
-                <div> <li> </li></div>
+                <div class="white-text"> {{ value.id }}</div>
 
-                <div> <image src="{{ value.url }}"></image> </div>
-
-                <div> <a href={% url 'crypto:cryptoName' value.alias%}> {{ value.name}} </a> </div>
-
-                <div> - {{ value.alias  }} </div>
-
+                <div> <image src="{{ value.url }}" style="height: 50px; width:50px"></image>
+                <a class = "white-text" href={% url 'crypto:cryptoName' value.alias%}> {{ value.name}} ( - {{ value.alias  }} ) </a>
+                </div>
+{#            <div class = "white-text">{{ value.currentPrice }}</div>#}
+{#            <div class = "white-text">{{ value.circulatingSupply }}</div>#}
+{#            <div class = "white-text">{{ value.marketCap }}</div>#}
+{#            <div class = "white-text">{{ value.volume }}</div>#}
+            <div>price</div>
+            <div>circulating supply</div>
+            <div>market cap</div>
+            <div>volume</div>
                 <div >
-                  <canvas style="background: azure" id="myChart{{ value.id }}"></canvas>
+                  <canvas style="background: #16162b" id="myChart{{ value.id }}"></canvas>
                 </div>
 
                 <script>
@@ -48,8 +63,8 @@
                     labels: window[labelName],
                     datasets: [{
                       label: 'My First dataset',
-                      backgroundColor: 'rgb(255, 99, 132)',
-                      borderColor: 'rgb(255, 99, 132)',
+                      backgroundColor: '#2ae419',
+                      borderColor: '#2ae419',
                     pointRadius:1,
                       data:
                           [{% for row in rows %}
@@ -102,5 +117,6 @@
 
     {% endfor %}
     </form>
+{% include 'footer.html' %}
 </body>
 </html>
