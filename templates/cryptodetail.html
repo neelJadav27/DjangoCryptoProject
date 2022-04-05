@@ -18,14 +18,14 @@
     {% if cryptoDetails %}
           {% for data in cryptoDetails %}
 
-              <h1 class="white-text"> Name : {{ data.name }} ( {{ data.alias }} ) </h1>
+              <h1 class="white-text" style=" font-size: x-large"> Name : <b>{{ data.name }} ( {{ data.alias }} ) </b></h1>
 
-               <span class="white-text"  style=" font-size: x-large"> Current Price ($): {{ currentPrice }}</span><br>
-
-                  <span class="white-text"> Market Capacity ($): {{ marketCap }}</span><br>
-    <span class="white-text"> Circulating Supply : {{ circulatingSupply }}</span><br>
-
-              <span class="white-text"> Description : {{ data.description }}</span><br>
+              <span class="white-text"  style=" font-size: x-large"> Current Price ($):<b> {{ currentPrice }}</b> </span><br>
+                <br/><br/>
+              <span class="white-text"> Market Capacity ($): <b>{{ marketCap }} </b></span><br>
+              <span class="white-text"> Circulating Supply : <b>{{ circulatingSupply }}</b></span><br>
+            <br/><br/>
+              <span class="white-text"> Description : <b>{{ data.description }}</b></span><br>
           {% endfor %}
       {% endif %}
 
@@ -104,12 +104,14 @@
 
 
     </form>
-
+<div style="margin-bottom: 10px; display: flex;
+    justify-content: center;
+    align-items: center;">
  <form method="POST" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoName }} ">
         {% csrf_token %}
-        <input class="myButton" name="MakeTransaction" type="submit" value="Make A Transaction">
+        <input  class="myButton" name="MakeTransaction" type="submit" value="Trade {{ cryptoName }}">
     </form>
-
+</div>
 {% include 'footer.html' %}
 </body>
 </html>
