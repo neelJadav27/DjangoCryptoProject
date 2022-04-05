@@ -6,22 +6,43 @@
     <meta charset="UTF-8">
     <title>Home Page</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <link rel="stylesheet" href="{% static 'css/cryptodetail.css' %}">
 </head>
 <body>
 {% include 'header.html' %}
-    <form action="{% url 'crypto:cryptoName' cryptoName%}" method="POST">
+
+    <form  action="{% url 'crypto:cryptoName' cryptoName%}" method="POST">
 
         {% csrf_token %}
-        <input name="oneDay"  value="1 Day" type="submit"/>
-        <input name="sevenDays" value="7 days" type="submit" />
-        <input name="fifteenDays" value="15 days" type="submit" />
-        <input name="oneMonth" value="1 month" type="submit" />
-        <input name="twoMonths"  value="2 month" type="submit"/>
+    <div class="details">
+    {% if cryptoDetails %}
+          {% for data in cryptoDetails %}
+
+              <h1 class="white-text"> Name : {{ data.name }} ( {{ data.alias }} ) </h1>
+
+               <span class="white-text"  style=" font-size: x-large"> Current Price ($): {{ currentPrice }}</span><br>
+
+                  <span class="white-text"> Market Capacity ($): {{ marketCap }}</span><br>
+    <span class="white-text"> Circulating Supply : {{ circulatingSupply }}</span><br>
+
+              <span class="white-text"> Description : {{ data.description }}</span><br>
+          {% endfor %}
+      {% endif %}
 
 
-    <div style="height: 150px; width: 300px;">
 
-      <canvas style="background: azure" id="myChart{{ cryptoName }}"></canvas>
+</div>
+
+<div>
+    <div>
+        <input class="myButton" name="oneDay"  value="1 Day" type="submit"/>
+        <input class="myButton"  name="sevenDays" value="7 days" type="submit" />
+        <input class="myButton"  name="fifteenDays" value="15 days" type="submit" />
+        <input class="myButton"  name="oneMonth" value="1 month" type="submit" />
+        <input class="myButton"  name="twoMonths"  value="2 month" type="submit"/>
+    </divstyle>
+    <div id="chart">
+      <canvas style="background: #000064" id="myChart{{ cryptoName }}"></canvas>
     </div>
 
 <script>
@@ -33,17 +54,18 @@
       window[labelName] = [
                     {% for row in rows %}
                             {% if row.currency == cryptoName %}
-                                    '{{ " "     }}',
+                                    '{{ row.Datetime   }}',
                             {% endif %}
                       {% endfor %}
                     ];
 
       window[dataName] = {
         labels: window[labelName],
+        {#labels : ['Monday','Monday','Monday','Monday','Monday'],#}
         datasets: [{
-          label: 'My First dataset',
-          backgroundColor: 'rgb(255, 99, 132)',
-          borderColor: 'rgb(255, 99, 132)',
+          label: '{{cryptoName}}',
+          backgroundColor: '#C77FF2FF',
+          borderColor: '#C77FF2FF',
         pointRadius:1,
           data:
               [{% for row in rows %}
@@ -55,6 +77,7 @@
       };
 
       window[configName] = {
+
         type: 'line',
         data: window[dataName],
 
@@ -65,14 +88,9 @@
             }
         },
             scales: {
-                y: {
 
-                    display: false,
-                },
-                x:{
-                    display:false
-                }
             },
+
         }
       };
       window[myChartName] = new Chart(
@@ -80,23 +98,18 @@
         window[configName],
       );
 
+
 </script>
-    {% if cryptoDetails %}
-          {% for data in cryptoDetails %}
-              <h4> Alias : {{ data.alias }} </h4>
-              <h4> Name : {{ data.name }} </h4>
-              <h4> Description : {{ data.description }}</h4>
-          {% endfor %}
-      {% endif %}
-    <h4> Current Price : {{ currentPrice }}</h4>
-    <h4> Market Capacity : {{ marketCap }}</h4>
-    <h4> Circulating Supply : {{ circulatingSupply }}</h4>
+</div>
+
+
     </form>
 
-    <form method="POST" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoName }} ">
+ <form method="POST" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoName }} ">
         {% csrf_token %}
-        <input name="MakeTransaction" type="submit" value="Make A Transaction">
+        <input class="myButton" name="MakeTransaction" type="submit" value="Make A Transaction">
     </form>
+
 {% include 'footer.html' %}
 </body>
 </html>
