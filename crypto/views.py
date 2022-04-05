@@ -25,8 +25,10 @@ def index(req):
 def logout(req):
     if req.user.is_authenticated:
         django.contrib.auth.logout(req)
+        # user is logged in
         return redirect('crypto:home')
     else:
+        # user is not logged in
         return redirect('crypto:home')
 
 
@@ -36,23 +38,19 @@ def login(req):
         if logInForm.is_valid():
             email = logInForm.cleaned_data['email']
             password = logInForm.cleaned_data["password"]
-            user = authenticate(username=email, password=password)
-            if user is not None:
-                if user.is_active:
-                    django.contrib.auth.login(req, user)
-                    req.session.set_expiry(7200)
 
             user = authenticate(username=email, password=password)
             if user is not None:
                 if user.is_active:
                     django.contrib.auth.login(req, user)
+                    req.session.set_expiry(7200)
                     return redirect("crypto:index")
                 else:
                     status = "User account disabled"
             else:
-                status = "Username and/or password is wrong"
+                status = "Username or password is wrong"
         else:
-            return HttpResponse("Invalid data")
+            status = "Invalid Data"
     else:
         logInForm = LogInForm()
         status = ""
@@ -232,17 +230,17 @@ def profile(req):
     paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
 
     history = Wallet.objects.filter(userId=userData['id']).values()
-    
+
     for data in history:
         cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
         data.update({'cryptoData': cryptoData})
     if paymentInfo is not None:
-        updateCardInfo = {'cardNo': '**** **** ' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
+        updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
         paymentInfo.update(updateCardInfo)
     context = {
-        "userData":userData,
-        "paymentInfo":paymentInfo,
-        "history":history
+        "userData": userData,
+        "paymentInfo": paymentInfo,
+        "history": history
     }
     return render(req, 'profile.html', context)
 
@@ -262,6 +260,7 @@ def getPageRange(pageNumber, onEachSide, totalPage):
     return range1, range2
 
 
+#add credit card details
 def paymentDetails(req):
     if not req.user.is_authenticated:
         return redirect('crypto:login')
@@ -290,7 +289,7 @@ def paymentDetails(req):
             if cardInfo is None:
                 paymentData = paymentForm.save(commit=False)
                 paymentData.userId = User.objects.get(username=req.user.username)
-                # paymentForm.save()
+                paymentForm.save()
                 redirectToWhere = req.GET.get("cryptoName", "")
 
                 if redirectToWhere != "":
@@ -413,7 +412,7 @@ def makePayment(req):
             cryptoName = req.GET.get("cryptoName", "")
 
             if cryptoName == "":
-                return render(req, 'redirect.html', {'cryptoName': cryptoName})
+                return HttpResponse("Crypto Name Missing. Unable to make payment")
 
             userData = User.objects.filter(username=req.user.username).values()
             paymentData = PaymentInfo.objects.filter(userId=userData.first()['id']).values()
@@ -424,7 +423,7 @@ def makePayment(req):
 
             if paymentData.count() > 0:
                 isPaymentAdded = True
-                updateCardInfo = {'cardNo': '**** **** ' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
+                updateCardInfo = {'cardNo': '**** **** ****' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
                 cardInfo.update(updateCardInfo)
             else:
                 isPaymentAdded = False
@@ -440,7 +439,7 @@ def makePayment(req):
                         cryptoAmount -= data['quantity']
 
                 if cryptoAmount < 0:
-                    return render(req, 'redirect.html', {'cryptoName': cryptoName})
+                    return HttpResponse("Crypto Value below 0")
                 elif cryptoAmount > 0:
                     userHasBought = True
 
@@ -453,7 +452,6 @@ def makePayment(req):
                 currentPrice = 0
             circulatingSupply = ticket_info["circulatingSupply"]
             marketCap = ticket_info["marketCap"]
-
             context = {
                 "isPaymentAdded": isPaymentAdded,
                 "userHasBought": userHasBought,
@@ -486,7 +484,7 @@ def makePayment(req):
 
         if paymentData.count() > 0:
             isPaymentAdded = True
-            updateCardInfo = {'cardNo': '**** **** ' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
+            updateCardInfo = {'cardNo': '**** **** ****' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
             cardInfo.update(updateCardInfo)
         else:
             isPaymentAdded = False
