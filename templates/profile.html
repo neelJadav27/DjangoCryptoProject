@@ -39,8 +39,8 @@
                 <th class="profileValue">{{ userData.dob }}</th>
             </tr>
             <tr class="eachRecord">
-                <th class="profileContent">Wallet Balance: </th>
-                <th class="profileValue"> ($){{ userData.walletBalance }}</th>
+                <th class="profileContent">Wallet Balance($): </th>
+                <th class="profileValue"> {{ userData.walletBalance }}</th>
             </tr>
         </table>
 
@@ -86,7 +86,10 @@
 <h2 class="title">History</h2><br/>
 
 <table class="history">
-    <tr>
+
+</table>
+<table class="history2">
+<tr>
         <th style="text-align: left;width: 13% ">Currency</th>
         <th style=" width: 15%;">Rate</th>
         <th >Amount</th>
@@ -94,8 +97,6 @@
         <th>Date</th>
         <th>Type</th>
     </tr>
-</table>
-<table class="history2">
 {% for data in history %}
 <tr style="width: 100%">
        <th>  {{ data.cryptoData.name }} </th>
