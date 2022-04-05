@@ -1,8 +1,79 @@
 .personalDetails{
     border: 2px solid lightslategrey;
     margin: 10px;
-    width: 700px;
+    width: 96%;
     display: flex;
-
-    height: 150px;
+    flex-direction: column;
+    font-family: Calibri;
+    align-self: center;
+    justify-content: center;
+    height: 320px;
+    border-radius: 10px;
 }
+.eachRecord{
+    display: flex;
+    padding: 20px;
+    flex-direction: row;
+    width: 90%;
+    margin-left: 2%;
+}
+
+.profileContent{
+    text-align: left;
+    color: black;
+    font-family: Calibri;
+    font-size: 20px;
+    height: 20px;
+    width: 20%;
+}
+
+.profileValue{
+    color: black;
+    font-family: Calibri;
+    margin-left: 40px;
+    font-size: 20px;
+    height: 20px;
+}
+
+.personalHeader{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.editURL{
+    font-size: 20px;
+    justify-content: right;
+    display: flex;
+    align-items: center;
+    margin-right: 5%;
+}
+.title{
+    margin-left: 2%;
+    font-family: Calibri;
+    font-size: 30px;
+}
+
+
+.editCredit{
+
+    justify-content: right;
+    display: flex;
+    align-items: center;
+    margin-right: 5%;
+}
+
+.history{
+    width: 96%;
+    font-family: Calibri;
+    margin-left: 25px;
+}
+.history2{
+    margin: 10px;
+    border: 2px solid lightslategrey;
+    width: 96%;
+    font-family: Calibri;
+    height: 200px;
+    border-radius: 10px;
+}
+
