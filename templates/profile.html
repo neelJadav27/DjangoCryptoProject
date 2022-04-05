@@ -7,50 +7,110 @@
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 </head>
 
-<body>
+<body style="margin-top: 90px;">
+    {% include 'header.html' %}
     {% csrf_token %}
-    <h2>Personal Information</h2>
-    <div><a href="{% url 'crypto:editProfile' %}">Edit Profile</a></div>
-    <div class="personalDetails">
-        <label for="">First Name :</label> {{ userData.first_name }}<br>
-        Last Name : {{ userData.last_name }}<br>
-        Phone Number : {{ userData.phoneNo }}<br>
-        Email : {{ userData.email }}<br>
-        Date of Birth : {{ userData.dob }}<br>
+    <div class="personalHeader">
+        <h2 class="title">Personal Information</h2>
+        <div class="editURL"><a href="{% url 'crypto:editProfile' %}" style="color: white">Edit Profile</a></div>
     </div>
+    <div class="personalDetails">
+        <table>
+            <tr class="eachRecord">
+                <th class="profileContent">First Name : </th>
+                <th class="profileValue">{{ userData.first_name }}</th>
+            </tr>
+            <tr class="eachRecord">
+                <th class="profileContent">Last Name : </th>
+                <th class="profileValue">{{ userData.last_name }}</th>
+            </tr>
+            <tr class="eachRecord">
+                <th class="profileContent">Phone Number : </th>
+                <th class="profileValue">{{ userData.phoneNo }}</th>
+            </tr>
+            </tr>
+            <tr class="eachRecord">
+                <th class="profileContent">Email : </th>
+                <th class="profileValue">{{ userData.email }}</th>
+            </tr>
+            </tr>
+            <tr class="eachRecord">
+                <th class="profileContent">Date of Birth : </th>
+                <th class="profileValue">{{ userData.dob }}</th>
+            </tr>
+        </table>
 
+{#        <div class="eachRecord"><div class="profileContent">First Name :</div><div class="profileValue"> {{ userData.first_name }}</div></div>#}
+{#        <div class="eachRecord"><div class="profileContent">Last Name :</div><div class="profileValue"> {{ userData.last_name }}</div></div>#}
+{#        <div class="eachRecord"><div class="profileContent">Phone Number :</div> <div class="profileValue"> {{ userData.phoneNo }}</div></div>#}
+{#        <div class="eachRecord"><div class="profileContent">Email : </div><div class="profileValue"> {{ userData.email }}</div></div>#}
+{#        <div class="eachRecord"><div class="profileContent">Date of Birth : </div><div class="profileValue"> {{ userData.dob }}</div></div>#}
+    </div>
 
     {% if paymentInfo %}
         <form action="{% url 'crypto:add_payment' %}" method="POST">
             {% csrf_token %}
-            <h2>Card Information</h2><br>
-            Card Number : {{ paymentInfo.cardNo }}<br>
-            Expiry Date : {{ paymentInfo.expiryDate }}<br>
-            CVV : {{ paymentInfo.CVV }}<br><br>
-            <input type="submit" name="EditCard" value="Edit Credit Info">
+            <div class="personalHeader">
+                <h2 class="title">Card Information</h2><br>
+                <div class="editCredit"><input style="font-size: 15px" type="submit" name="EditCard" value="Edit Credit Info"></div>
+            </div>
+            <div class="personalDetails">
+            <table>
+                <tr class="eachRecord">
+                    <th class="profileContent">Card Number: </th>
+                    <th class="profileValue">{{ paymentInfo.cardNo }}</th>
+                </tr>
+                <tr class="eachRecord">
+                    <th class="profileContent">Expiry Date </th>
+                    <th class="profileValue">{{ paymentInfo.expiryDate }}</th>
+                </tr>
+                <tr class="eachRecord">
+                    <th class="profileContent">CVV : </th>
+                    <th class="profileValue">{{ paymentInfo.CVV }}</th>
+                </tr>
+{#            Card Number : {{ paymentInfo.cardNo }}<br>#}
+{#            Expiry Date : {{ paymentInfo.expiryDate }}<br>#}
+{#            CVV : {{ paymentInfo.CVV }}<br><br>#}
+            </table>
+            </div>
         </form>
     {% else %}
         <h2> Payment Method not added </h2>
     {% endif %}
+<br>
+<h2 class="title">History</h2><br/>
 
-<h2>History</h2><br/>
-
+<table class="history">
+    <tr>
+        <th style="text-align: left;width: 13% ">Currency</th>
+        <th style=" width: 15%;">Rate</th>
+        <th >Amount</th>
+        <th>Quantity</th>
+        <th>Date</th>
+        <th>Type</th>
+    </tr>
+</table>
+<table class="history2">
 {% for data in history %}
-    CryptoName: {{ data.cryptoData.name }}<br>
-    {% if data.type == 'B' %}
-        Buy Rate: {{data.cryptoRate }}<br>
-    {% else %}
-        Sold Rate: {{data.cryptoRate }}<br>
-    {% endif %}
-    Amount Bought: {{ data.amount }}<br>
-    Quantity: {{ data.quantity }}<br>
-    Payment Date: {{ data.paymentDate}}<br>
-    {% if data.type == 'B' %}
-        Bought
-    {% else %}
-        Sold
-    {% endif %}<br><br><br><br>
+<tr style="width: 100%">
+       <th>  {{ data.cryptoData.name }} </th>
+        <th>
+        {% if data.type == 'B' %}
+            {{data.cryptoRate }}
+        {% else %}
+            {{data.cryptoRate }}
+        {% endif %}
+        </th>
+        <th>{{ data.amount }}</th>
+        <th>{{ data.quantity }}</th>
+        <th> {{ data.paymentDate}}</th>
+        {% if data.type == 'B' %}
+            <th>Bought</th>
+        {% else %}
+            <th>Sold</th>
+        {% endif %}
+    </tr>
 {% endfor %}
-
+</table>
 </body>
 </html>
