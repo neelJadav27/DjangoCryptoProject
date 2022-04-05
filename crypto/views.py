@@ -26,10 +26,10 @@ def logout(req):
     if req.user.is_authenticated:
         django.contrib.auth.logout(req)
         # user is logged in
-        return redirect('crypto:home')
+        return redirect('crypto:login')
     else:
         # user is not logged in
-        return redirect('crypto:home')
+        return redirect('crypto:login')
 
 
 def login(req):
@@ -77,7 +77,8 @@ def signup(req):
             userData = User.objects.create_user(email=email, username=email, dob=dob, first_name=firstName,
                                                 last_name=lastName, password=password, sex=sex, phoneNo=phoneNo)
             userData.save()
-            return redirect('crypto:home')
+
+            return redirect('crypto:login')
         else:
             return redirect('crypto:signup')
     else:
@@ -303,7 +304,7 @@ def paymentDetails(req):
                                                                    expiryDate=expiryDate, CVV=CVV)
                 return redirect('crypto:profile')
 
-            return redirect('crypto:home')
+            return redirect('crypto:profile')
         else:
             return redirect('crypto:add_payment')
     else:
@@ -362,7 +363,7 @@ def makePayment(req):
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
 
-            return redirect('crypto:home')
+            return redirect('crypto:profile')
 
         elif req.POST.get("Sell"):
 
@@ -405,7 +406,7 @@ def makePayment(req):
             walletData.save()
             walletBalance = float(userData['walletBalance']) + usdAmount
             User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
-            return redirect('crypto:home')
+            return redirect('crypto:profile')
 
         elif req.POST.get("MakeTransaction"):
 
