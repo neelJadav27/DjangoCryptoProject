@@ -263,7 +263,9 @@ form .btn.btn-primary:hover {
 </style>
 </head>
 <body oncontextmenu='return false' class='snippet-body'>
+
 <form method="post" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoData.alias }}">
+{% csrf_token %}
 <div class="container bg-light d-md-flex align-items-center">
     <div class="card box1 shadow-sm p-md-5 p-md-5 p-4">
         <div class="fw-bolder mb-4"><span class="fas fa-dollar-sign"></span><span class="ps-1"> {{ cryptoData.name }} - {{ cryptoData.alias }}</span></div>
@@ -353,5 +355,6 @@ form .btn.btn-primary:hover {
 <script type='text/javascript' src=''></script>
 <script type='text/javascript' src=''></script>
 <script type='text/Javascript'></script>
+
 </body>
 </html>

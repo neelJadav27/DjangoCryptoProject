@@ -25,9 +25,9 @@ def index(req):
 def logout(req):
     if req.user.is_authenticated:
         django.contrib.auth.logout(req)
-        return HttpResponse("User Logged out")
+        return redirect('crypto:home')
     else:
-        return HttpResponse("User is not logged in")
+        return redirect('crypto:home')
 
 
 def login(req):
@@ -79,9 +79,9 @@ def signup(req):
             userData = User.objects.create_user(email=email, username=email, dob=dob, first_name=firstName,
                                                 last_name=lastName, password=password, sex=sex, phoneNo=phoneNo)
             userData.save()
-            return HttpResponse("Registered")
+            return redirect('crypto:home')
         else:
-            return HttpResponse("Invalid data")
+            return redirect('crypto:signup')
     else:
         signUpForm = SignUpForm()
 
@@ -113,8 +113,10 @@ def home(req):
         ticker_yahoo = yf.Ticker(a['alias'] + "-USD")
         ticket_history = ticker_yahoo.history(period='1d', interval='1d')
         ticket_info = ticker_yahoo.info
-        print(ticket_history)
-        currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+        try:
+            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+        except:
+            currentPrice = 0
         circulatingSupply = ticket_info["circulatingSupply"]
         marketCap = ticket_info["marketCap"]
         volume = ticket_info['volume24Hr']
@@ -147,9 +149,12 @@ def cryptoName(req, cryptoName):
     data = pd.DataFrame()
 
     ticker_yahoo = yf.Ticker(cryptoName + "-USD")
-    ticket_history = ticker_yahoo.history()
+    ticket_history = ticker_yahoo.history(period='1d', interval='1d')
     ticket_info = ticker_yahoo.info
-    currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+    try:
+        currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+    except:
+        currentPrice = 0
     circulatingSupply = ticket_info["circulatingSupply"]
     marketCap = ticket_info["marketCap"]
 
@@ -196,7 +201,7 @@ def cryptoName(req, cryptoName):
 
 def editProfile(req):
     if not req.user.is_authenticated:
-        return HttpResponse("You are not logged in. Please Login")
+        return redirect('crypto:login')
 
     if req.method == "POST":
         editProfileForm = EditProfileDetails(req.POST)
@@ -210,7 +215,7 @@ def editProfile(req):
             # editProfileForm.save()
             return redirect('crypto:profile')
         else:
-            return HttpResponse("Invalid Data")
+            return redirect('crypto:profile')
     else:
         userData = User.objects.filter(username=req.user.username).values().first()
         context = {
@@ -221,7 +226,7 @@ def editProfile(req):
 
 def profile(req):
     if not req.user.is_authenticated:
-        return HttpResponse("User not logged in")
+        return redirect('crypto:login')
 
     userData = User.objects.filter(username=req.user.username).values().first()
     paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
@@ -229,7 +234,6 @@ def profile(req):
     history = Wallet.objects.filter(userId=userData['id']).values()
     
     for data in history:
-        print(data['crypto_id'])
         cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
         data.update({'cryptoData': cryptoData})
     if paymentInfo is not None:
@@ -260,7 +264,7 @@ def getPageRange(pageNumber, onEachSide, totalPage):
 
 def paymentDetails(req):
     if not req.user.is_authenticated:
-        return HttpResponse("You are not logged in. Please Login")
+        return redirect('crypto:login')
 
     if req.method == "POST":
         paymentForm = PaymentDetailsForm(req.POST)
@@ -268,7 +272,6 @@ def paymentDetails(req):
         if req.POST.get("EditCard"):
             userData = User.objects.get(username=req.user.username)
             cardInfo = PaymentInfo.objects.filter(userId=userData).values().first()
-            print(cardInfo)
             initial = {
                 'cardHolderName': cardInfo['cardHolderName'],
                 'cardNo': cardInfo['cardNo'],
@@ -299,11 +302,11 @@ def paymentDetails(req):
                 CVV = paymentForm.cleaned_data['CVV']
                 PaymentInfo.objects.filter(userId=userData).update(cardHolderName=cardHolderName, cardNo=cardNo,
                                                                    expiryDate=expiryDate, CVV=CVV)
-                return HttpResponse("Card Info Updated")
+                return redirect('crypto:profile')
 
-            return HttpResponse("success")
+            return redirect('crypto:home')
         else:
-            return HttpResponse("Invalid data")
+            return redirect('crypto:add_payment')
     else:
         paymentForm = PaymentDetailsForm()
 
@@ -315,7 +318,7 @@ def paymentDetails(req):
 
 def makePayment(req):
     if not req.user.is_authenticated:
-        return HttpResponse("You are not logged in. Please Login")
+        return redirect('crypto:login')
 
     if req.method == "POST":
         if req.POST.get("Buy"):
@@ -329,21 +332,23 @@ def makePayment(req):
             if cryptoDbData['available'] - float(cryptoValue) >= 0:
                 Cr.objects.filter(alias=cryptoName).update(available=cryptoDbData['available'] - float(cryptoValue))
             else:
-                return HttpResponse("We do not have enough stock. We are sorry :(")
+                return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
             userId = User.objects.get(username=req.user.username)
             cryptoId = Cr.objects.get(alias=cryptoName)
 
             ticker_yahoo = yf.Ticker(cryptoName + "-USD")
-            ticket_history = ticker_yahoo.history()
-            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            ticket_history = ticker_yahoo.history(period='1d', interval='1d')
+            try:
+                currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            except:
+                currentPrice = 0
+
             amount = float(currentPrice) * float(cryptoValue)
 
             if amount >= userData['walletBalance']:
                 # below amount will be taken from user's card after using user's wallet balance
                 cardBalance = amount - float(userData['walletBalance'])
-
-                print("CARD BALANCE : ", cardBalance)
 
                 # RESET BALANCE TO 0
                 User.objects.filter(username=req.user.username).update(walletBalance=0)
@@ -358,14 +363,14 @@ def makePayment(req):
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
 
-            return HttpResponse("Buy Done")
+            return redirect('crypto:home')
 
         elif req.POST.get("Sell"):
 
             cryptoName = req.GET.get("cryptoName", "")
 
             if cryptoName == "":
-                return HttpResponse("Crypto Name Missing. Unable to make payment")
+                return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
             cryptoValue = float(req.POST.get("sellCryptoValue"))
 
@@ -374,8 +379,11 @@ def makePayment(req):
             walletInfo = Wallet.objects.filter(userId=userData['id'], crypto=cryptoData.first()['id']).values()
 
             ticker_yahoo = yf.Ticker(cryptoName + "-USD")
-            ticket_history = ticker_yahoo.history()
-            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            ticket_history = ticker_yahoo.history(period='1d', interval='1d')
+            try:
+                currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            except:
+                currentPrice = 0
 
             cryptoAmount = 0
 
@@ -385,10 +393,10 @@ def makePayment(req):
                 elif data['type'] == 'S':
                     cryptoAmount -= data['quantity']
 
-            usdAmount = float(currentPrice) * float(cryptoAmount)
+            usdAmount = float(currentPrice) * float(cryptoValue)
 
             if cryptoValue > cryptoAmount:
-                return HttpResponse("You are trying to sell more crypto than you own")
+                return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
             userId = User.objects.get(username=req.user.username)
             cryptoId = Cr.objects.get(alias=cryptoName)
@@ -398,14 +406,14 @@ def makePayment(req):
             walletData.save()
             walletBalance = float(userData['walletBalance']) + usdAmount
             User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
-            return HttpResponse("Sell Done")
+            return redirect('crypto:home')
 
         elif req.POST.get("MakeTransaction"):
 
             cryptoName = req.GET.get("cryptoName", "")
 
             if cryptoName == "":
-                return HttpResponse("Crypto Name Missing. Unable to make payment")
+                return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
             userData = User.objects.filter(username=req.user.username).values()
             paymentData = PaymentInfo.objects.filter(userId=userData.first()['id']).values()
@@ -432,14 +440,17 @@ def makePayment(req):
                         cryptoAmount -= data['quantity']
 
                 if cryptoAmount < 0:
-                    return HttpResponse("Crypto Value below 0")
+                    return render(req, 'redirect.html', {'cryptoName': cryptoName})
                 elif cryptoAmount > 0:
                     userHasBought = True
 
             ticker_yahoo = yf.Ticker(cryptoName + "-USD")
-            ticket_history = ticker_yahoo.history()
+            ticket_history = ticker_yahoo.history(period='1d', interval='1d')
             ticket_info = ticker_yahoo.info
-            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            try:
+                currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+            except:
+                currentPrice = 0
             circulatingSupply = ticket_info["circulatingSupply"]
             marketCap = ticket_info["marketCap"]
 
@@ -496,12 +507,14 @@ def makePayment(req):
                 userHasBought = True
 
         ticker_yahoo = yf.Ticker(cryptoName + "-USD")
-        ticket_history = ticker_yahoo.history()
+        ticket_history = ticker_yahoo.history(period='1d', interval='1d')
         ticket_info = ticker_yahoo.info
-        currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+        try:
+            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+        except:
+            currentPrice = 0
         circulatingSupply = ticket_info["circulatingSupply"]
         marketCap = ticket_info["marketCap"]
-        print(userData)
         context = {
             "isPaymentAdded": isPaymentAdded,
             "userHasBought": userHasBought,
