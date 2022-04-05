@@ -44,7 +44,7 @@ def login(req):
                 if user.is_active:
                     django.contrib.auth.login(req, user)
                     req.session.set_expiry(7200)
-                    return redirect("crypto:index")
+                    return redirect("crypto:profile")
                 else:
                     status = "User account disabled"
             else:
