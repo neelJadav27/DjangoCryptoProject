@@ -109,18 +109,18 @@ def home(req):
 
     data = pd.DataFrame()
     for a in cryptoData:
-        # ticker_yahoo = yf.Ticker(a['alias'] + "-USD")
-        # ticket_history = ticker_yahoo.history(period='1d', interval='1d')
-        # ticket_info = ticker_yahoo.info
-        # print(ticket_history)
-        # currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
-        # circulatingSupply = ticket_info["circulatingSupply"]
-        # marketCap = ticket_info["marketCap"]
-        # volume = ticket_info['volume24Hr']
-        #
-        # updateData = {'currentPrice': currentPrice, 'circulatingSupply': circulatingSupply, 'marketCap': marketCap,
-        #               'volume': volume}
-        # a.update(updateData)
+        ticker_yahoo = yf.Ticker(a['alias'] + "-USD")
+        ticket_history = ticker_yahoo.history(period='1d', interval='1d')
+        ticket_info = ticker_yahoo.info
+        print(ticket_history)
+        currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+        circulatingSupply = ticket_info["circulatingSupply"]
+        marketCap = ticket_info["marketCap"]
+        volume = ticket_info['volume24Hr']
+
+        updateData = {'currentPrice': currentPrice, 'circulatingSupply': circulatingSupply, 'marketCap': marketCap,
+                      'volume': volume}
+        a.update(updateData)
         df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="90m")
 
         df1["currency"] = a['alias']
