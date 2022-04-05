@@ -75,7 +75,8 @@
             </div>
         </form>
     {% else %}
-        <h2> Payment Method not added </h2>
+        <h2 class="title"> Payment Method not added </h2>
+        <a href="{% url 'crypto:add_payment' %}"> <div class="editCredit"><input style="font-size: 15px" type="button" name="Add Payment" value="Add Payment"></div>  </a>
     {% endif %}
 <br>
 <h2 class="title">History</h2><br/>

@@ -263,6 +263,9 @@ form .btn.btn-primary:hover {
 </style>
 </head>
 <body oncontextmenu='return false' class='snippet-body'>
+<div class="col-2 px-md-5 px-4 mt-3">
+    <a href="{% url 'crypto:home' %}"><input class="btn btn-primary w-100" name="Home" type="button" value="Home"></a>
+</div>
 
 <form method="post" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoData.alias }}">
 {% csrf_token %}
@@ -351,6 +354,7 @@ form .btn.btn-primary:hover {
     </div>
 </div>
 </form>
+
 <script type='text/javascript' src='https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js'></script>
 <script type='text/javascript' src=''></script>
 <script type='text/javascript' src=''></script>
