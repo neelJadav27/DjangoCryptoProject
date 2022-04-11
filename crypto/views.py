@@ -206,7 +206,6 @@ def editProfile(req):
         editProfileForm = EditProfileDetails(req.POST)
         if editProfileForm.is_valid():
 
-            userId = req.user.username
             User.objects.filter(username=req.user.username).update(
                 first_name=editProfileForm.cleaned_data['first_name'],
                 last_name=editProfileForm.cleaned_data['last_name'],
@@ -322,7 +321,6 @@ def makePayment(req):
 
     if req.method == "POST":
         if req.POST.get("Buy"):
-
             cryptoValue = req.POST.get("cryptoValue")
 
             cryptoName = req.GET.get('cryptoName')
@@ -349,7 +347,6 @@ def makePayment(req):
             if amount >= userData['walletBalance']:
                 # below amount will be taken from user's card after using user's wallet balance
                 cardBalance = amount - float(userData['walletBalance'])
-
                 # RESET BALANCE TO 0
                 User.objects.filter(username=req.user.username).update(walletBalance=0)
             else:
