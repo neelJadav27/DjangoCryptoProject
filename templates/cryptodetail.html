@@ -17,7 +17,7 @@
     <div class="details">
     {% if cryptoDetails %}
           {% for data in cryptoDetails %}
-
+                 <image src="{{ data.url }}" style="height: 50px; width:50px"></image>
               <h1 class="white-text" style=" font-size: x-large"> Name : <b>{{ data.name }} ( {{ data.alias }} ) </b></h1>
 
               <span class="white-text"  style=" font-size: x-large"> Current Price ($):<b> {{ currentPrice }}</b> </span><br>
