@@ -10,6 +10,8 @@
 <body style="margin-top: 90px;">
     {% include 'header.html' %}
     {% csrf_token %}
+    <h5 style="color: red;margin-left: 2%">{{ status1 }}</h5>
+    <h5 style="color: green;margin-left: 2%">{{ status2 }}</h5>
     <div class="personalHeader">
         <h2 class="title">Personal Information</h2>
         <div class="editURL"><a href="{% url 'crypto:editProfile' %}" style="color: white">Edit Profile</a></div>

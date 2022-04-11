@@ -76,14 +76,23 @@ def signup(req):
             phoneNo = signUpForm.cleaned_data['phoneNo']
             try:
                 userData = User.objects.create_user(email=email, username=email, dob=dob, first_name=firstName,
-                                                   last_name=lastName, password=password, sex=sex, phoneNo=phoneNo)
-            except:
-                return redirect('crypto:signup')
-            userData.save()
+                                                    last_name=lastName, password=password, sex=sex, phoneNo=phoneNo)
+                userData.save()
 
-            return redirect('crypto:login')
+                logInForm = LogInForm()
+                status = ""
+                context = {
+                    "logInForm": logInForm,
+                    "status": "",
+                    "status2": "Signup successful",
+                }
+
+                return render(req, "login.html", context)
+            except:
+                return render(req, "signup.html", {"signUpForm": signUpForm, "status": "User already exists"})
+
         else:
-            return redirect('crypto:signup')
+            return render(req, "signup.html", {"signUpForm": signUpForm, "status": "Invalid Data"})
     else:
         signUpForm = SignUpForm()
 
@@ -215,9 +224,27 @@ def editProfile(req):
                 last_name=editProfileForm.cleaned_data['last_name'],
                 phoneNo=editProfileForm.cleaned_data['phoneNo'])
             # editProfileForm.save()
-            return redirect('crypto:profile')
+            return render(req, "profile.html", {"status2": "Information updated"})
+            #return redirect('crypto:profile')
         else:
-            return redirect('crypto:profile')
+            # for key in req.POST.keys():
+            #     if field.erros
+            # status = ""
+            # for field in editProfileForm:
+            #     for error in field.errors:
+            #         status += field.name + " " + error + " \n"
+            #         print(field)
+            #         print(field.name)
+            #         print(error)
+
+            print(editProfileForm.errors)
+            userData = User.objects.filter(username=req.user.username).values().first()
+            context = {
+                "userData": userData,
+                "formError": editProfileForm
+            }
+            return render(req, "editProfile.html", context)
+
     else:
         userData = User.objects.filter(username=req.user.username).values().first()
         context = {
@@ -264,7 +291,7 @@ def getPageRange(pageNumber, onEachSide, totalPage):
     return range1, range2
 
 
-#add credit card details
+# add credit card details
 def paymentDetails(req):
     if not req.user.is_authenticated:
         return redirect('crypto:login')
@@ -305,10 +332,12 @@ def paymentDetails(req):
                 CVV = paymentForm.cleaned_data['CVV']
                 PaymentInfo.objects.filter(userId=userData).update(cardHolderName=cardHolderName, cardNo=cardNo,
                                                                    expiryDate=expiryDate, CVV=CVV)
-                return redirect('crypto:profile')
+                # return redirect('crypto:profile')
+            #print("good")
+            return render(req, "profile.html", {"status2": "Information updated"})
 
-            return redirect('crypto:profile')
         else:
+            # error list here
             return redirect('crypto:add_payment')
     else:
         paymentForm = PaymentDetailsForm()
@@ -366,7 +395,8 @@ def makePayment(req):
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
 
-            return redirect('crypto:profile')
+            return render(req, "profile.html", {"status2": "Buy completed"})
+            #return redirect('crypto:profile')
 
         elif req.POST.get("Sell"):
 
@@ -409,7 +439,8 @@ def makePayment(req):
             walletData.save()
             walletBalance = float(userData['walletBalance']) + usdAmount
             User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
-            return redirect('crypto:profile')
+            return render(req, "profile.html", {"status2": "Sell completed"})
+            #return redirect('crypto:profile')
 
         elif req.POST.get("MakeTransaction"):
 
