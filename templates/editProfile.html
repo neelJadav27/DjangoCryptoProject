@@ -13,6 +13,14 @@
 
 <div style="display: flex;align-items: center;justify-content: center;">
 <div class="outerDiv">
+    <h4 style="color: red;">{{ status }}</h4>
+    {% if formError %}
+    {% for field in formError %}
+           {% for error in field.errors %}
+                   <strong style="color: red">{{ field.label | add:" " | add:error|escape }}</strong>
+           {% endfor %}
+       {% endfor %}
+    {% endif %}
     <h2 style="color: white;margin-bottom: 20px">Edit Profile Details</h2>
     <form style="display:flex; flex-direction:column;justify-content: center;align-items: center;width: 80%" method="post">
         {% csrf_token %}

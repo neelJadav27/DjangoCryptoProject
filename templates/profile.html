@@ -10,6 +10,8 @@
 <body style="margin-top: 90px;">
     {% include 'header.html' %}
     {% csrf_token %}
+    <h5 style="color: red;margin-left: 2%">{{ status1 }}</h5>
+    <h5 style="color: green;margin-left: 2%">{{ status2 }}</h5>
     <div class="personalHeader">
         <h2 class="title">Personal Information</h2>
         <div class="editURL"><a href="{% url 'crypto:editProfile' %}" style="color: white">Edit Profile</a></div>
@@ -37,6 +39,10 @@
             <tr class="eachRecord">
                 <th class="profileContent">Date of Birth : </th>
                 <th class="profileValue">{{ userData.dob }}</th>
+            </tr>
+            <tr class="eachRecord">
+                <th class="profileContent">Wallet Balance($): </th>
+                <th class="profileValue"> {{ userData.walletBalance }}</th>
             </tr>
         </table>
 
@@ -82,7 +88,10 @@
 <h2 class="title">History</h2><br/>
 
 <table class="history">
-    <tr>
+
+</table>
+<table class="history2">
+<tr>
         <th style="text-align: left;width: 13% ">Currency</th>
         <th style=" width: 15%;">Rate</th>
         <th >Amount</th>
@@ -90,8 +99,6 @@
         <th>Date</th>
         <th>Type</th>
     </tr>
-</table>
-<table class="history2">
 {% for data in history %}
 <tr style="width: 100%">
        <th>  {{ data.cryptoData.name }} </th>
