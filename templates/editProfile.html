@@ -17,7 +17,7 @@
     {% if formError %}
     {% for field in formError %}
            {% for error in field.errors %}
-                   <strong style="color: red">{{ field.label | add:" " | add:error|escape }}</strong>
+                   <strong style="color: red">{{ field.label | add:" : " | add:error|escape }}</strong>
            {% endfor %}
        {% endfor %}
     {% endif %}

@@ -270,7 +270,14 @@ form .btn.btn-primary:hover {
 <form method="post" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoData.alias }}">
 {% csrf_token %}
 <div class="container bg-light d-md-flex align-items-center">
+
     <div class="card box1 shadow-sm p-md-5 p-md-5 p-4">
+        {% if status %}
+            <h6 style="color: red"> {{ status }} </h6>
+        {% endif %}
+        {% if error %}
+                <h6 style="color: red">{{ error }}</h6>
+        {% endif %}
         <div class="fw-bolder mb-4"><span class="fas fa-dollar-sign"></span><span class="ps-1"> {{ cryptoData.name }} - {{ cryptoData.alias }}</span></div>
         <div class="d-flex flex-column">
             <div class="d-flex align-items-center justify-content-between text mb-3"> <span class="">Full Name : </span> <span class="fas fa-dollar-sign"><span class="ps-1">{{ userData.first_name }} {{ userData.last_name }}</span></span> </div>

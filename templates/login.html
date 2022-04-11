@@ -40,7 +40,14 @@
 
 			<div class="wrap-login100 p-l-50 p-r-50 p-t-72 p-b-50">
 
-                <h4 style="color: red">{{ status }}</h4>
+                <h6 style="color: red">{{ status }}</h6>
+                {% if formError %}
+                {% for field in formError %}
+                       {% for error in field.errors %}
+                               <strong style="color: red">{{ field.label | add:" : " | add:error|escape }}</strong>
+                       {% endfor %}
+                   {% endfor %}
+                {% endif %}
 				<form class="login100-form validate-form" method="post">
                     {% csrf_token %}
 					<span class="login100-form-title p-b-59">

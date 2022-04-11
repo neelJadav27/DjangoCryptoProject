@@ -50,11 +50,15 @@ def login(req):
             else:
                 status = "Username or password is wrong"
         else:
-            status = "Invalid Data"
+            logInForm2 = logInForm()
+            context = {
+                "logInForm": logInForm2,
+                "formError": logInForm
+            }
+            return render(req, "login.html", context)
     else:
         logInForm = LogInForm()
         status = ""
-
     context = {
         "logInForm": logInForm,
         "status": status
@@ -92,7 +96,12 @@ def signup(req):
                 return render(req, "signup.html", {"signUpForm": signUpForm, "status": "User already exists"})
 
         else:
-            return render(req, "signup.html", {"signUpForm": signUpForm, "status": "Invalid Data"})
+            signUpForm2 = signUpForm()
+            context = {
+                "signUpForm": signUpForm2,
+                "formError": signUpForm
+            }
+            return render(req, "signup.html", context)
     else:
         signUpForm = SignUpForm()
 
@@ -225,7 +234,7 @@ def editProfile(req):
                 phoneNo=editProfileForm.cleaned_data['phoneNo'])
             # editProfileForm.save()
             return render(req, "profile.html", {"status2": "Information updated"})
-            #return redirect('crypto:profile')
+            # return redirect('crypto:profile')
         else:
             # for key in req.POST.keys():
             #     if field.erros
@@ -237,7 +246,6 @@ def editProfile(req):
             #         print(field.name)
             #         print(error)
 
-            print(editProfileForm.errors)
             userData = User.objects.filter(username=req.user.username).values().first()
             context = {
                 "userData": userData,
@@ -333,12 +341,16 @@ def paymentDetails(req):
                 PaymentInfo.objects.filter(userId=userData).update(cardHolderName=cardHolderName, cardNo=cardNo,
                                                                    expiryDate=expiryDate, CVV=CVV)
                 # return redirect('crypto:profile')
-            #print("good")
+
             return render(req, "profile.html", {"status2": "Information updated"})
 
         else:
-            # error list here
-            return redirect('crypto:add_payment')
+            paymentForm2 = PaymentDetailsForm()
+            context = {
+                "paymentForm": paymentForm2,
+                "formError": paymentForm
+            }
+            return render(req, "addpayment.html", context)
     else:
         paymentForm = PaymentDetailsForm()
 
@@ -355,16 +367,26 @@ def makePayment(req):
     if req.method == "POST":
         if req.POST.get("Buy"):
 
-            cryptoValue = req.POST.get("cryptoValue")
-
             cryptoName = req.GET.get('cryptoName')
+            cryptoValue = req.POST.get("cryptoValue")
+            try:
+                cryptoValue = float(cryptoValue)
+            except:
+                url2 = 'http://127.0.0.1:8000/makepayment'
+                parameter = "cryptoName=" + cryptoName + "&error=cve"
+                return redirect(f'{url2}?{parameter}')
+
             cryptoDbData = Cr.objects.filter(alias=cryptoName).values().first()
             userData = User.objects.filter(username=req.user.username).values().first()
 
             if cryptoDbData['available'] - float(cryptoValue) >= 0:
                 Cr.objects.filter(alias=cryptoName).update(available=cryptoDbData['available'] - float(cryptoValue))
             else:
-                return render(req, 'redirect.html', {'cryptoName': cryptoName})
+                url2 = 'http://127.0.0.1:8000/makepayment'
+                parameter = "cryptoName=" + cryptoName + "&error=ne"
+                return redirect(f'{url2}?{parameter}')
+                # return render(req, f'{url2}?{parameter}', {'error': 'error'})
+                # return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
             userId = User.objects.get(username=req.user.username)
             cryptoId = Cr.objects.get(alias=cryptoName)
@@ -374,7 +396,12 @@ def makePayment(req):
             try:
                 currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
             except:
-                currentPrice = 0
+                # fail because API is not providing current price of crypto
+                url2 = 'http://127.0.0.1:8000/makepayment'
+                parameter = "cryptoName=" + cryptoName + "&error=ce"
+                return redirect(f'{url2}?{parameter}')
+
+                # currentPrice = 0
 
             amount = float(currentPrice) * float(cryptoValue)
 
@@ -396,7 +423,7 @@ def makePayment(req):
             walletData.save()
 
             return render(req, "profile.html", {"status2": "Buy completed"})
-            #return redirect('crypto:profile')
+            # return redirect('crypto:profile')
 
         elif req.POST.get("Sell"):
 
@@ -405,7 +432,13 @@ def makePayment(req):
             if cryptoName == "":
                 return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
-            cryptoValue = float(req.POST.get("sellCryptoValue"))
+            cryptoValue = req.POST.get("sellCryptoValue")
+            try:
+                cryptoValue = float(cryptoValue)
+            except:
+                url2 = 'http://127.0.0.1:8000/makepayment'
+                parameter = "cryptoName=" + cryptoName + "&error=cve"
+                return redirect(f'{url2}?{parameter}')
 
             userData = User.objects.filter(username=req.user.username).values().first()
             cryptoData = Cr.objects.filter(alias=cryptoName).values()
@@ -416,7 +449,11 @@ def makePayment(req):
             try:
                 currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
             except:
-                currentPrice = 0
+                # fail because API is not providing current price of crypto
+                url2 = 'http://127.0.0.1:8000/makepayment'
+                parameter = "cryptoName=" + cryptoName + "&error=ce"
+                return redirect(f'{url2}?{parameter}')
+                # currentPrice = 0
 
             cryptoAmount = 0
 
@@ -440,7 +477,7 @@ def makePayment(req):
             walletBalance = float(userData['walletBalance']) + usdAmount
             User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
             return render(req, "profile.html", {"status2": "Sell completed"})
-            #return redirect('crypto:profile')
+            # return redirect('crypto:profile')
 
         elif req.POST.get("MakeTransaction"):
 
@@ -484,7 +521,11 @@ def makePayment(req):
             try:
                 currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
             except:
-                currentPrice = 0
+                # fail because API is not providing current price of crypto
+                url2 = 'http://127.0.0.1:8000/makepayment'
+                parameter = "cryptoName=" + cryptoName + "&error=ce"
+                return redirect(f'{url2}?{parameter}')
+                # currentPrice = 0
             circulatingSupply = ticket_info["circulatingSupply"]
             marketCap = ticket_info["marketCap"]
             context = {
@@ -506,9 +547,17 @@ def makePayment(req):
     else:
 
         cryptoName = req.GET.get("cryptoName", "")
+        error = req.GET.get("error", "")
 
         if cryptoName == "":
             return HttpResponse("Crypto Name Missing. Unable to make payment")
+
+        if error == "ne":
+            error = "Not enough crypto stock"
+        elif error == "ce":
+            error = "Failed to get crypto price"
+        elif error == "cve":
+            error = "Please provide correct crypto value"
 
         userData = User.objects.filter(username=req.user.username).values()
         paymentData = PaymentInfo.objects.filter(userId=userData.first()['id']).values()
@@ -559,6 +608,7 @@ def makePayment(req):
             "marketCap": marketCap,
             # 'usdAmount': usdAmount,
             'cryptoAmount': cryptoAmount,
+            'error': error
         }
 
     return render(req, "makepayment.html", context)
