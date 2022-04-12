@@ -128,38 +128,36 @@ def home(req):
 
     data = pd.DataFrame()
     for a in cryptoData:
-        print(a)
         try:
-            df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="90m")
-
-            df1["currency"] = a['alias']
-
-            data = data.append(df1)
+            df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="90m"
+                              , threads=False)
         except:
             continue
 
+        df1["currency"] = a['alias']
+
+        data = data.append(df1)
+
+        data = data.drop('Adj Close', axis=1)
         ticker_yahoo = yf.Ticker(a['alias'] + "-USD")
         ticket_history = ticker_yahoo.history(period='1d', interval='1d')
-        ticket_info = ticker_yahoo.info
-        try:
-            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
-        except:
-            currentPrice = 0
-        circulatingSupply = ticket_info["circulatingSupply"]
-        marketCap = ticket_info["marketCap"]
-        volume = ticket_info['volume24Hr']
+
+        marketCap = ticker_yahoo.info["marketCap"]
+        circulatingSupply = ticker_yahoo.info["circulatingSupply"]
+        volume = ticker_yahoo.info["volume24Hr"]
 
         updateData = {'currentPrice': currentPrice, 'circulatingSupply': circulatingSupply, 'marketCap': marketCap,
                       'volume': volume}
         a.update(updateData)
-        # df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="90m")
-        #
-        # df1["currency"] = a['alias']
-        #
-        # data = data.append(df1)
+
+        try:
+            currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
+        except:
+            currentPrice = 0
 
     data = data.reset_index(level=0)
-    data = data.drop('Adj Close', axis=1)
+
+    print(data)
     pageRange = getPageRange(page, 5, (countData / 10))
 
     context = {
@@ -178,13 +176,14 @@ def cryptoName(req, cryptoName):
 
     ticker_yahoo = yf.Ticker(cryptoName + "-USD")
     ticket_history = ticker_yahoo.history(period='1d', interval='1d')
-    ticket_info = ticker_yahoo.info
+
     try:
         currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
     except:
         currentPrice = 0
-    circulatingSupply = ticket_info["circulatingSupply"]
-    marketCap = ticket_info["marketCap"]
+
+    marketCap = ticker_yahoo.info["marketCap"]
+    circulatingSupply = ticker_yahoo.info["circulatingSupply"]
 
     try:
         if req.method == "POST":
@@ -205,6 +204,7 @@ def cryptoName(req, cryptoName):
         return HttpResponse("The Yahoo API has caused an error")
     df1["currency"] = cryptoName
 
+    # data = pd.concat(df1)
     data = data.append(df1)
 
     data = data.reset_index(level=0)
@@ -570,7 +570,7 @@ def makePayment(req):
 
             ticker_yahoo = yf.Ticker(cryptoName + "-USD")
             ticket_history = ticker_yahoo.history(period='1d', interval='1d')
-            ticket_info = ticker_yahoo.info
+            # ticket_info = ticker_yahoo.info
             try:
                 currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
             except:
@@ -579,8 +579,10 @@ def makePayment(req):
                 parameter = "cryptoName=" + cryptoName + "&error=ce"
                 return redirect(f'{url2}?{parameter}')
                 # currentPrice = 0
-            circulatingSupply = ticket_info["circulatingSupply"]
-            marketCap = ticket_info["marketCap"]
+
+            marketCap = ticker_yahoo.info["marketCap"]
+            circulatingSupply = ticker_yahoo.info["circulatingSupply"]
+
             context = {
                 "isPaymentAdded": isPaymentAdded,
                 "userHasBought": userHasBought,
@@ -642,13 +644,15 @@ def makePayment(req):
 
         ticker_yahoo = yf.Ticker(cryptoName + "-USD")
         ticket_history = ticker_yahoo.history(period='1d', interval='1d')
-        ticket_info = ticker_yahoo.info
+
         try:
             currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
         except:
             currentPrice = 0
-        circulatingSupply = ticket_info["circulatingSupply"]
-        marketCap = ticket_info["marketCap"]
+
+        marketCap = ticker_yahoo.info["marketCap"]
+        circulatingSupply = ticker_yahoo.info["circulatingSupply"]
+
         context = {
             "isPaymentAdded": isPaymentAdded,
             "userHasBought": userHasBought,
