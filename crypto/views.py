@@ -224,7 +224,6 @@ def editProfile(req):
                 phoneNo=editProfileForm.cleaned_data['phoneNo'])
             # editProfileForm.save()
             return render(req, "profile.html", {"status2": "Information updated"})
-            #return redirect('crypto:profile')
         else:
             # for key in req.POST.keys():
             #     if field.erros
