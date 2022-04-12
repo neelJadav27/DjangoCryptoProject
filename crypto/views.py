@@ -1,5 +1,5 @@
 import django.contrib.auth
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from .models import *
@@ -88,8 +88,7 @@ def signup(req):
                     "logInForm": logInForm,
                     "status2": "Signup successful",
                 }
-
-                return render(req, "login.html", context)
+                return HttpResponseRedirect("/login")
             except:
                 return render(req, "signup.html", {"signUpForm": signUpForm, "status": "User already exists"})
 
@@ -146,14 +145,16 @@ def home(req):
         circulatingSupply = ticker_yahoo.info["circulatingSupply"]
         volume = ticker_yahoo.info["volume24Hr"]
 
-        updateData = {'currentPrice': currentPrice, 'circulatingSupply': circulatingSupply, 'marketCap': marketCap,
-                      'volume': volume}
-        a.update(updateData)
-
         try:
             currentPrice = (ticket_history.tail(1)['Close'].iloc[0])
         except:
             currentPrice = 0
+
+        updateData = {'currentPrice': currentPrice, 'circulatingSupply': circulatingSupply, 'marketCap': marketCap,
+                      'volume': volume}
+        a.update(updateData)
+
+
 
     data = data.reset_index(level=0)
 
@@ -243,7 +244,9 @@ def editProfile(req):
                 last_name=editProfileForm.cleaned_data['last_name'],
                 phoneNo=editProfileForm.cleaned_data['phoneNo'])
 
-            return profile2(req, "status", "Information Updated")
+            return HttpResponseRedirect("/profile")
+
+            #return profile2(req, "status", "Information Updated")
 
         else:
             userData = User.objects.filter(username=req.user.username).values().first()
@@ -271,7 +274,7 @@ def profile2(req, type="", message=""):
         cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
         data.update({'cryptoData': cryptoData})
     if paymentInfo is not None:
-        updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
+        updateCardInfo = {'cardNo': '**** **** **** ' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
         paymentInfo.update(updateCardInfo)
 
     if type == "error":
@@ -288,7 +291,6 @@ def profile2(req, type="", message=""):
             "history": history,
             "status2": message,
         }
-
     return render(req, 'profile.html', context)
 
 
@@ -305,7 +307,7 @@ def profile(req):
         cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
         data.update({'cryptoData': cryptoData})
     if paymentInfo is not None:
-        updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
+        updateCardInfo = {'cardNo': '**** **** **** ' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
         paymentInfo.update(updateCardInfo)
     context = {
         "userData": userData,
@@ -375,8 +377,8 @@ def paymentDetails(req):
                 PaymentInfo.objects.filter(userId=userData).update(cardHolderName=cardHolderName, cardNo=cardNo,
                                                                    expiryDate=expiryDate, CVV=CVV)
                 # return redirect('crypto:profile')
-
-            return profile2(req, "status", "Information Updated")
+            return HttpResponseRedirect("/profile")
+            #return profile2(req, "status", "Information Updated")
 
         else:
             paymentForm2 = PaymentDetailsForm()
@@ -453,7 +455,9 @@ def makePayment(req):
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
 
-            return profile2(req, "status", "Buy completed")
+            return HttpResponseRedirect("/profile")
+
+            #return profile2(req, "status", "Buy completed")
 
         elif req.POST.get("Sell"):
 
@@ -507,7 +511,10 @@ def makePayment(req):
             walletBalance = float(userData['walletBalance']) + usdAmount
             User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
 
-            return profile2(req, "status", "Sell completed")
+            Cr.objects.filter(alias=cryptoName).update(available=float(cryptoData.first()['available']) + float(cryptoValue))
+            return HttpResponseRedirect("/profile")
+
+            #return profile2(req, "status", "Sell completed")
 
 
         elif req.POST.get("MakeTransaction"):
@@ -526,7 +533,7 @@ def makePayment(req):
 
             if paymentData.count() > 0:
                 isPaymentAdded = True
-                updateCardInfo = {'cardNo': '**** **** ****' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
+                updateCardInfo = {'cardNo': '**** **** **** ' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
                 cardInfo.update(updateCardInfo)
             else:
                 isPaymentAdded = False
@@ -600,7 +607,7 @@ def makePayment(req):
 
         if paymentData.count() > 0:
             isPaymentAdded = True
-            updateCardInfo = {'cardNo': '**** **** ****' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
+            updateCardInfo = {'cardNo': '**** **** **** ' + str(cardInfo['cardNo'])[12:16], 'CVV': '***'}
             cardInfo.update(updateCardInfo)
         else:
             isPaymentAdded = False

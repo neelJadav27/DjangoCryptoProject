@@ -22,11 +22,16 @@ class LogInForm(forms.Form):
 
 
 class SignUpForm(forms.ModelForm):
-    nameRegex = "^([a-z]*[A-Z]*){8,}$"
+    pwregex = "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+    password = forms.CharField(label='Password', widget=forms.PasswordInput(
+                attrs={'id': 'password', 'name': 'password', 'class': 'input100', 'placeholder': '**********'}) ,validators=[
+                                   RegexValidator(pwregex,
+                                                  message="Should be a minimum eight characters, at least one letter, one number and one special character")],
+ )
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "email", "password", "sex", "dob", "phoneNo"]
+        fields = ["first_name", "last_name", "email", "sex", "dob", "phoneNo"]
 
         widgets = {
             'dob': DateInput(attrs={'class': 'label-input100', 'id': 'birthday', 'name': 'birthday'}),
@@ -34,8 +39,6 @@ class SignUpForm(forms.ModelForm):
                 attrs={'name': 'first_name', 'class': 'input100', 'placeholder': 'First Name'}),
             'last_name': forms.TextInput(attrs={'name': 'last_name', 'class': 'input100', 'placeholder': 'Last Name'}),
             'email': forms.TextInput(attrs={'name': 'email', 'class': 'input100', 'placeholder': 'Email'}),
-            'password': forms.PasswordInput(
-                attrs={'id': 'password', 'name': 'password', 'class': 'input100', 'placeholder': '**********'}),
             'sex': forms.Select(attrs={'name': 'sex', 'class': 'label-input100', 'placeholder': 'Sex'}),
             'phoneNo': forms.TextInput(
                 attrs={'name': 'phoneNo', 'class': 'input100', 'placeholder': 'Phone Number',

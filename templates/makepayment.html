@@ -273,10 +273,10 @@ form .btn.btn-primary:hover {
 
     <div class="card box1 shadow-sm p-md-5 p-md-5 p-4">
         {% if status %}
-            <h6 style="color: red"> {{ status }} </h6>
+            <h6 style=" color: white; border: 1px solid red"> {{ status }} </h6>
         {% endif %}
         {% if error %}
-                <h6 style="color: red">{{ error }}</h6>
+                <h6 style="color: white; border: 1px solid red">{{ error }}</h6>
         {% endif %}
         <div class="fw-bolder mb-4"><span class="fas fa-dollar-sign"></span><span class="ps-1"> {{ cryptoData.name }} - {{ cryptoData.alias }}</span></div>
         <div class="d-flex flex-column">

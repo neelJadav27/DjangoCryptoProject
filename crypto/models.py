@@ -10,12 +10,15 @@ class Demo(models.Model):
 
 
 class User(User):
+    pwregex = "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+    User.password = RegexValidator(regex=pwregex, message="Password should be minimum 8 characters and must contain: Atleast 1 Upper case, 1 Special Character, 1 Number ")
     reg = RegexValidator(regex="^[0-9]{10}$", message="THIS WILL ONLY ALLOW TEN DIGIT NUMBERS")
     phoneNo = models.BigIntegerField(validators=[reg], blank=False, null=False)
     sexChoices = [('M', "Male"), ('F', "Female"), ('O', "Others")]
     sex = models.CharField(max_length=1, choices=sexChoices, default='F')
     dob = models.DateField(null=False, blank=False)
     walletBalance = models.DecimalField(max_digits=100, decimal_places=4, default=0)
+
     def __str__(self):
         return str(self.id)
 

@@ -14,7 +14,7 @@
 <h5 style="color: red;margin-left: 2%">{{ status1 }}</h5>
 <h5 style="color: green;margin-left: 2%">{{ status2 }}</h5>
 <div class="personalHeader">
-    <div class="editURL"><a href="{% url 'crypto:editProfile' %}" style="color: white">Edit Profile</a></div>
+    <div class="editURL btn"><a href="{% url 'crypto:editProfile' %}" style="color: white">Edit Profile</a></div>
 </div>
 
 <div class="personalDetails">
@@ -81,7 +81,7 @@
         <div class="personalHeader">
             <h2 class="title">Card Information</h2><br>
 {#            <div class="btn">#}
-                <input class="btn" type="submit" name="EditCard" value="Edit Credit Info">
+                <input class="btn" type="submit" name="EditCard" value="Edit Payment info">
 {#            </div>#}
         </div>
         <div class="personalDetails">
@@ -108,7 +108,7 @@
                             <div class="card-number">
                                 <div class="section">{{ paymentInfo.cardNo }}</div>
                             </div>
-                            <div class="end"><span class="end-text">exp. date:</span><span
+                            <div style="z-index: 1" class="end"><span class="end-text">exp. date:</span><span
                                     class="end-date">{{ paymentInfo.expiryDate }}</span></div>
                             <div class="card-holder">{{ paymentInfo.cardHolderName }}</div>
                             <div class="master">
@@ -157,7 +157,7 @@
         </tr>
         {% for data in history %}
             <tr class="trr">
-                <td class="tdd">{{ data.cryptoData.name }}</td>
+                <td class="tdd"><a href="{% url 'crypto:makepayment' %}?cryptoName={{ data.cryptoData.alias }}"> {{ data.cryptoData.name }} </a> </td>
                 <td class="tdd">
                     {% if data.type == 'B' %}
                         {{ data.cryptoRate }}

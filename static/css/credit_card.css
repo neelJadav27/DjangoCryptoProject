@@ -84,6 +84,7 @@
 }
 
 .strip-bottom {
+  z-index: -1;
   width: 200px;
   transform: skewX(-15deg) translateX(50px);
 }
