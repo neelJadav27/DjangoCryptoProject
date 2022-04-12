@@ -1,10 +1,21 @@
 #chart{
-    height: 50%;
-    width:85%;
+    height: 70%;
+    width:100%;
     padding: 10px;
+	margin-top: 60px;
 
 }
 
+.leftside{
+	height: 100%;
+	width: 100%;
+	padding: 10px;
+}
+
+.canvas{
+	background: #000064;
+	border: 5px solid #c77ff2;
+}
 
 
 .white-text{
@@ -12,30 +23,46 @@
     font-size: large;
 }
 
-.myButton {
-	background:linear-gradient(to bottom, #C77FF2FF 5%, #16162b 100%);
-	background-color:#C77FF2FF;
-	border-radius:17px;
-	border:1px solid #C77FF2FF;
+.btn {
+  border-radius: 8px;
+  font-family: Arial;
+  color: #ffffff;
+  font-size: 20px;
+  background: #c77ff2;
+  padding: 5px 3px 5px 3px;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: #ffffff;
+  background-image: linear-gradient(to bottom, #c77ff2, #100e0f);
+  text-decoration: none;
+}
+
+
+.tradeBtn {
+	box-shadow: 3px 4px 0px 0px #899599;
+	background:linear-gradient(to bottom, #ededed 5%, #bab1ba 100%);
+	background-color:#ededed;
+	border-radius:15px;
+	border:1px solid #d6bcd6;
 	display:inline-block;
 	cursor:pointer;
-	color:#ffffff;
+	color:#3a8a9e;
 	font-family:Arial;
 	font-size:17px;
-	padding:6px 8px;
+	padding:7px 25px;
 	text-decoration:none;
-	text-shadow:0px 1px 0px #C77FF2FF;
-    margin-top: 100px;
+	text-shadow:0px 1px 0px #e1e2ed;
 }
-.myButton:hover {
-	background:linear-gradient(to bottom, #16162b 5%, #C77FF2FF 100%);
-	background-color:#C77FF2FF;
+.tradeBtn:hover {
+	background:linear-gradient(to bottom, #bab1ba 5%, #ededed 100%);
+	background-color:#bab1ba;
 }
-.myButton:active {
+.tradeBtn:active {
 	position:relative;
 	top:1px;
 }
-
 .details{
     margin-top: 60px;
 }
