@@ -188,18 +188,24 @@ def cryptoName(req, cryptoName):
     try:
         if req.method == "POST":
             if req.POST.get("oneDay"):
-                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m")
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m",
+                                  threads=False)
             elif req.POST.get("sevenDays"):
-                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="15m")
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="15m",
+                                  threads=False)
             elif req.POST.get("fifteenDays"):
-                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(15)[0], end=getPrevDate(15)[1], interval="15m")
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(15)[0], end=getPrevDate(15)[1], interval="15m",
+                                  threads=False)
             elif req.POST.get("oneMonth"):
-                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(30)[0], end=getPrevDate(30)[1], interval="30m")
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(30)[0], end=getPrevDate(30)[1], interval="30m",
+                                  threads=False)
             elif req.POST.get("twoMonths"):
-                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(59)[0], end=getPrevDate(59)[1], interval="90m")
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(59)[0], end=getPrevDate(59)[1], interval="90m",
+                                  threads=False)
 
         else:
-            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m")
+            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m",
+                              threads=False)
     except:
         return HttpResponse("The Yahoo API has caused an error")
     df1["currency"] = cryptoName
@@ -232,7 +238,6 @@ def editProfile(req):
         editProfileForm = EditProfileDetails(req.POST)
         if editProfileForm.is_valid():
 
-            userId = req.user.username
             User.objects.filter(username=req.user.username).update(
                 first_name=editProfileForm.cleaned_data['first_name'],
                 last_name=editProfileForm.cleaned_data['last_name'],
@@ -395,8 +400,8 @@ def makePayment(req):
 
     if req.method == "POST":
         if req.POST.get("Buy"):
-
             cryptoName = req.GET.get('cryptoName')
+
             cryptoValue = req.POST.get("cryptoValue")
             try:
                 cryptoValue = float(cryptoValue)
@@ -435,7 +440,6 @@ def makePayment(req):
             if amount >= userData['walletBalance']:
                 # below amount will be taken from user's card after using user's wallet balance
                 cardBalance = amount - float(userData['walletBalance'])
-
                 # RESET BALANCE TO 0
                 User.objects.filter(username=req.user.username).update(walletBalance=0)
             else:
@@ -448,19 +452,6 @@ def makePayment(req):
             walletData = Wallet(userId=userId, crypto=cryptoId, cryptoRate=currentPrice,
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
-
-            # profile code
-            userData = User.objects.filter(username=req.user.username).values().first()
-            paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
-
-            history = Wallet.objects.filter(userId=userData['id']).values()
-
-            for data in history:
-                cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
-                data.update({'cryptoData': cryptoData})
-            if paymentInfo is not None:
-                updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
-                paymentInfo.update(updateCardInfo)
 
             return profile2(req, "status", "Buy completed")
 
@@ -516,21 +507,8 @@ def makePayment(req):
             walletBalance = float(userData['walletBalance']) + usdAmount
             User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
 
-            # profile code
-            userData = User.objects.filter(username=req.user.username).values().first()
-            paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
-
-            history = Wallet.objects.filter(userId=userData['id']).values()
-
-            for data in history:
-                cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
-                data.update({'cryptoData': cryptoData})
-            if paymentInfo is not None:
-                updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
-                paymentInfo.update(updateCardInfo)
             return profile2(req, "status", "Sell completed")
 
-            # return redirect('crypto:profile')
 
         elif req.POST.get("MakeTransaction"):
 

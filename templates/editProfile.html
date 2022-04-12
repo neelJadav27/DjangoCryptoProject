@@ -10,37 +10,62 @@
 
 {% include 'header.html' %}
 
+<div class="personalDetails">
+    <div class="page-content page-container" id="page-content">
+        <div class="padding d-flex justify-content-center">
+            <div class="row container d-flex justify-content-center">
+                <div class="col-xl-12 col-md-14">
+                    <div class="card user-card-full">
+                        <div class="row m-l-0 m-r-0">
+                            <div class="col-sm-3 bg-c-lite-green user-profile">
+                                <div class="card-block text-center text-white">
+                                    <div class="m-b-25"><img src="https://img.icons8.com/bubbles/100/000000/user.png"
+                                                             class="img-radius" alt="User-Profile-Image"></div>
+                                    <h6 class="f-w-600">{{ userData.first_name }} {{ userData.last_name }}</h6>
+                                </div>
+                            </div>
 
-<div style="display: flex;align-items: center;justify-content: center;">
-<div class="outerDiv">
-    <h4 style="color: red;">{{ status }}</h4>
-    {% if formError %}
-    {% for field in formError %}
-           {% for error in field.errors %}
-                   <strong style="color: red">{{ field.label | add:" : " | add:error|escape }}</strong>
-           {% endfor %}
-       {% endfor %}
-    {% endif %}
-    <h2 style="color: white;margin-bottom: 20px">Edit Profile Details</h2>
-    <form style="display:flex; flex-direction:column;justify-content: center;align-items: center;width: 80%" method="post">
-        {% csrf_token %}
-            <div class="eachRow">
-                <p class="title">First Name: </p>
-                <input class="inputStyle" name="first_name" value='{{ userData.first_name }}' >
-            </div><br>
-            <div class="eachRow">
-                <p class="title">Last Name : </p>
-                <input class="inputStyle" name="last_name" value='{{ userData.last_name }}' >
-            </div><br>
-            <div class="eachRow">
-                <p class="title">Phone Number : </p>
-                <input class="inputStyle" name="phoneNo" value='{{ userData.phoneNo }}' >
-            </div><br>
-        <div class="submit">
-            <input style="width: 80%;height: 30px;font-size: 19px;text-align: center;" type="submit" value="Save"/>
+                            <div class="col-sm-8">
+                                <div class="card-block">
+                                    <h4 class="m-b-20 p-b-5 b-b-default f-w-600">Edit Profile Details</h4>
+                                    <h4 style="color: red;">{{ status }}</h4>
+                                    {% if formError %}
+                                        {% for field in formError %}
+                                            {% for error in field.errors %}
+                                                <strong style="color: red">{{ field.label | add:" " | add:error|escape }}</strong>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        <div class="row justify-content-sm-around m-1">
+                                            <p class="m-b-10 f-w-600">First Name: </p>
+                                            <input name="first_name" value='{{ userData.first_name }}'>
+                                        </div>
+
+                                        <div class="row justify-content-sm-around m-1">
+                                            <p class="m-b-10 f-w-600">Last Name : </p>
+                                            <input name="last_name" value='{{ userData.last_name }}'>
+                                        </div>
+                                        <div class="row justify-content-sm-around m-1">
+                                            <p class="m-b-10 f-w-600">Phone No : </p>
+                                            <input name="phoneNo" value='{{ userData.phoneNo }}'>
+                                        </div>
+                                        <div class="row">
+                                            <div class="submit">
+                                                <input class="btn" type="submit" value="Save"/>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
-</div>
+
 </body>
 </html>
