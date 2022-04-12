@@ -1,5 +1,5 @@
 from django import forms
-
+from django.core.validators import RegexValidator
 from .models import *
 
 
@@ -8,18 +8,26 @@ class DateInput(forms.DateInput):
 
 
 class LogInForm(forms.Form):
+    pwregex = "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+
     email = forms.CharField(label='Email', max_length=100,
                             widget=forms.TextInput(
                                 attrs={'placeholder': 'Email', 'class': 'input100', 'name': 'email'}))
     password = forms.CharField(label='Password', max_length=100,
+                               validators=[
+                                   RegexValidator(pwregex,
+                                                  message="Should be a minimum eight characters, at least one letter, one number and one special character")],
                                widget=forms.PasswordInput(
                                    attrs={'placeholder': '**********', 'class': 'input100', 'name': 'password'}))
 
 
 class SignUpForm(forms.ModelForm):
+    nameRegex = "^([a-z]*[A-Z]*){8,}$"
+
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email", "password", "sex", "dob", "phoneNo"]
+
         widgets = {
             'dob': DateInput(attrs={'class': 'label-input100', 'id': 'birthday', 'name': 'birthday'}),
             'first_name': forms.TextInput(
@@ -27,7 +35,7 @@ class SignUpForm(forms.ModelForm):
             'last_name': forms.TextInput(attrs={'name': 'last_name', 'class': 'input100', 'placeholder': 'Last Name'}),
             'email': forms.TextInput(attrs={'name': 'email', 'class': 'input100', 'placeholder': 'Email'}),
             'password': forms.PasswordInput(
-                attrs={'name': 'password', 'class': 'input100', 'placeholder': '**********'}),
+                attrs={'id': 'password', 'name': 'password', 'class': 'input100', 'placeholder': '**********'}),
             'sex': forms.Select(attrs={'name': 'sex', 'class': 'label-input100', 'placeholder': 'Sex'}),
             'phoneNo': forms.TextInput(
                 attrs={'name': 'phoneNo', 'class': 'input100', 'placeholder': 'Phone Number',

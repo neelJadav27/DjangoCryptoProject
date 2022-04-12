@@ -50,7 +50,7 @@ def login(req):
             else:
                 status = "Username or password is wrong"
         else:
-            logInForm2 = logInForm()
+            logInForm2 = LogInForm()
             context = {
                 "logInForm": logInForm2,
                 "formError": logInForm
@@ -84,10 +84,8 @@ def signup(req):
                 userData.save()
 
                 logInForm = LogInForm()
-                status = ""
                 context = {
                     "logInForm": logInForm,
-                    "status": "",
                     "status2": "Signup successful",
                 }
 
@@ -96,7 +94,7 @@ def signup(req):
                 return render(req, "signup.html", {"signUpForm": signUpForm, "status": "User already exists"})
 
         else:
-            signUpForm2 = signUpForm()
+            signUpForm2 = SignUpForm()
             context = {
                 "signUpForm": signUpForm2,
                 "formError": signUpForm
@@ -130,6 +128,16 @@ def home(req):
 
     data = pd.DataFrame()
     for a in cryptoData:
+        print(a)
+        try:
+            df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="90m")
+
+            df1["currency"] = a['alias']
+
+            data = data.append(df1)
+        except:
+            continue
+
         ticker_yahoo = yf.Ticker(a['alias'] + "-USD")
         ticket_history = ticker_yahoo.history(period='1d', interval='1d')
         ticket_info = ticker_yahoo.info
@@ -144,11 +152,11 @@ def home(req):
         updateData = {'currentPrice': currentPrice, 'circulatingSupply': circulatingSupply, 'marketCap': marketCap,
                       'volume': volume}
         a.update(updateData)
-        df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="90m")
-
-        df1["currency"] = a['alias']
-
-        data = data.append(df1)
+        # df1 = yf.download(a['alias'] + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="90m")
+        #
+        # df1["currency"] = a['alias']
+        #
+        # data = data.append(df1)
 
     data = data.reset_index(level=0)
     data = data.drop('Adj Close', axis=1)
@@ -178,21 +186,23 @@ def cryptoName(req, cryptoName):
     circulatingSupply = ticket_info["circulatingSupply"]
     marketCap = ticket_info["marketCap"]
 
-    if req.method == "POST":
-        if req.POST.get("oneDay"):
+    try:
+        if req.method == "POST":
+            if req.POST.get("oneDay"):
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m")
+            elif req.POST.get("sevenDays"):
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="15m")
+            elif req.POST.get("fifteenDays"):
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(15)[0], end=getPrevDate(15)[1], interval="15m")
+            elif req.POST.get("oneMonth"):
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(30)[0], end=getPrevDate(30)[1], interval="30m")
+            elif req.POST.get("twoMonths"):
+                df1 = yf.download(cryptoName + "-USD", start=getPrevDate(59)[0], end=getPrevDate(59)[1], interval="90m")
+
+        else:
             df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m")
-        elif req.POST.get("sevenDays"):
-            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="15m")
-        elif req.POST.get("fifteenDays"):
-            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(15)[0], end=getPrevDate(15)[1], interval="15m")
-        elif req.POST.get("oneMonth"):
-            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(30)[0], end=getPrevDate(30)[1], interval="30m")
-        elif req.POST.get("twoMonths"):
-            df1 = yf.download(cryptoName + "-USD", start=getPrevDate(59)[0], end=getPrevDate(59)[1], interval="90m")
-
-    else:
-        df1 = yf.download(cryptoName + "-USD", start=getPrevDate(1)[0], end=getPrevDate(1)[1], interval="5m")
-
+    except:
+        return HttpResponse("The Yahoo API has caused an error")
     df1["currency"] = cryptoName
 
     data = data.append(df1)
@@ -214,11 +224,6 @@ def cryptoName(req, cryptoName):
     return render(req, "cryptodetail.html", context)
 
 
-# def defineCrypto(req, currency_name):
-#     data = yf.download(currency_name + "-USD", start=getPrevDate(7)[0], end=getPrevDate(7)[1], interval="90m")
-#     return render(req, 'defineCrypto.html', {'columns': data.columns, 'rows': data.to_dict('records')})
-
-
 def editProfile(req):
     if not req.user.is_authenticated:
         return redirect('crypto:login')
@@ -232,20 +237,10 @@ def editProfile(req):
                 first_name=editProfileForm.cleaned_data['first_name'],
                 last_name=editProfileForm.cleaned_data['last_name'],
                 phoneNo=editProfileForm.cleaned_data['phoneNo'])
-            # editProfileForm.save()
-            return render(req, "profile.html", {"status2": "Information updated"})
-            # return redirect('crypto:profile')
-        else:
-            # for key in req.POST.keys():
-            #     if field.erros
-            # status = ""
-            # for field in editProfileForm:
-            #     for error in field.errors:
-            #         status += field.name + " " + error + " \n"
-            #         print(field)
-            #         print(field.name)
-            #         print(error)
 
+            return profile2(req, "status", "Information Updated")
+
+        else:
             userData = User.objects.filter(username=req.user.username).values().first()
             context = {
                 "userData": userData,
@@ -259,6 +254,37 @@ def editProfile(req):
             "userData": userData,
         }
         return render(req, "editProfile.html", context)
+
+
+def profile2(req, type="", message=""):
+    userData = User.objects.filter(username=req.user.username).values().first()
+    paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
+
+    history = Wallet.objects.filter(userId=userData['id']).values()
+
+    for data in history:
+        cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
+        data.update({'cryptoData': cryptoData})
+    if paymentInfo is not None:
+        updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
+        paymentInfo.update(updateCardInfo)
+
+    if type == "error":
+        context = {
+            "userData": userData,
+            "paymentInfo": paymentInfo,
+            "history": history,
+            "status": message,
+        }
+    elif type == "status":
+        context = {
+            "userData": userData,
+            "paymentInfo": paymentInfo,
+            "history": history,
+            "status2": message,
+        }
+
+    return render(req, 'profile.html', context)
 
 
 def profile(req):
@@ -332,7 +358,10 @@ def paymentDetails(req):
                 redirectToWhere = req.GET.get("cryptoName", "")
 
                 if redirectToWhere != "":
-                    return render(req, 'redirect.html', {'cryptoName': redirectToWhere})
+                    url2 = 'http://127.0.0.1:8000/makepayment'
+                    parameter = "cryptoName=" + cryptoName
+                    return redirect(f'{url2}?{parameter}')
+
             else:
                 cardHolderName = paymentForm.cleaned_data['cardHolderName']
                 cardNo = paymentForm.cleaned_data['cardNo']
@@ -342,7 +371,7 @@ def paymentDetails(req):
                                                                    expiryDate=expiryDate, CVV=CVV)
                 # return redirect('crypto:profile')
 
-            return render(req, "profile.html", {"status2": "Information updated"})
+            return profile2(req, "status", "Information Updated")
 
         else:
             paymentForm2 = PaymentDetailsForm()
@@ -385,8 +414,6 @@ def makePayment(req):
                 url2 = 'http://127.0.0.1:8000/makepayment'
                 parameter = "cryptoName=" + cryptoName + "&error=ne"
                 return redirect(f'{url2}?{parameter}')
-                # return render(req, f'{url2}?{parameter}', {'error': 'error'})
-                # return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
             userId = User.objects.get(username=req.user.username)
             cryptoId = Cr.objects.get(alias=cryptoName)
@@ -422,15 +449,24 @@ def makePayment(req):
                                 amount=amount, quantity=cryptoValue, type='B')
             walletData.save()
 
-            return render(req, "profile.html", {"status2": "Buy completed"})
-            # return redirect('crypto:profile')
+            # profile code
+            userData = User.objects.filter(username=req.user.username).values().first()
+            paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
+
+            history = Wallet.objects.filter(userId=userData['id']).values()
+
+            for data in history:
+                cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
+                data.update({'cryptoData': cryptoData})
+            if paymentInfo is not None:
+                updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
+                paymentInfo.update(updateCardInfo)
+
+            return profile2(req, "status", "Buy completed")
 
         elif req.POST.get("Sell"):
 
             cryptoName = req.GET.get("cryptoName", "")
-
-            if cryptoName == "":
-                return render(req, 'redirect.html', {'cryptoName': cryptoName})
 
             cryptoValue = req.POST.get("sellCryptoValue")
             try:
@@ -466,7 +502,10 @@ def makePayment(req):
             usdAmount = float(currentPrice) * float(cryptoValue)
 
             if cryptoValue > cryptoAmount:
-                return render(req, 'redirect.html', {'cryptoName': cryptoName})
+                # when html value(what user owns as crypto) is more than actual value(in db)
+                url2 = 'http://127.0.0.1:8000/makepayment'
+                parameter = "cryptoName=" + cryptoName
+                return redirect(f'{url2}?{parameter}')
 
             userId = User.objects.get(username=req.user.username)
             cryptoId = Cr.objects.get(alias=cryptoName)
@@ -476,7 +515,21 @@ def makePayment(req):
             walletData.save()
             walletBalance = float(userData['walletBalance']) + usdAmount
             User.objects.filter(username=req.user.username).update(walletBalance=walletBalance)
-            return render(req, "profile.html", {"status2": "Sell completed"})
+
+            # profile code
+            userData = User.objects.filter(username=req.user.username).values().first()
+            paymentInfo = PaymentInfo.objects.filter(userId=userData['id']).values().first()
+
+            history = Wallet.objects.filter(userId=userData['id']).values()
+
+            for data in history:
+                cryptoData = Cr.objects.filter(id=data['crypto_id']).values().first()
+                data.update({'cryptoData': cryptoData})
+            if paymentInfo is not None:
+                updateCardInfo = {'cardNo': '**** **** ****' + str(paymentInfo['cardNo'])[12:16], 'CVV': '***'}
+                paymentInfo.update(updateCardInfo)
+            return profile2(req, "status", "Sell completed")
+
             # return redirect('crypto:profile')
 
         elif req.POST.get("MakeTransaction"):
@@ -545,7 +598,6 @@ def makePayment(req):
         else:
             return HttpResponse("Unknown Operation")
     else:
-
         cryptoName = req.GET.get("cryptoName", "")
         error = req.GET.get("error", "")
 
