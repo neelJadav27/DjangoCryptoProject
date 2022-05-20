@@ -1,0 +1,122 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="margin-top: 90px;">
+
+{% include 'header.html' %}
+<div class="fixed-top white-text header-block grid">
+
+    <div>SR. NO</div>
+    <div>NAME</div>
+    <div>PRICE ($)</div>
+    <div>CIRCULATING SUPPLY</div>
+    <div>MARKET CAP ($)</div>
+    <div>VOLUME</div>
+    <div>LAST 24 HRS</div>
+</div>
+{% if cryptoData %}
+    <ol class="ol">
+    {% for value in cryptoData %}
+
+        <div class="data-block">
+            <div class="grid">
+
+                <div class="white-text"> {{ value.id }}</div>
+
+                <div class = "white-text"> <image src="{{ value.url }}" style="height: 50px; width:50px"></image>
+                <a class = "white-text" href={% url 'crypto:cryptoName' value.alias%}> {{ value.name}} ( - {{ value.alias  }} ) </a>
+                </div>
+            <div class = "white-text">{{ value.currentPrice }}</div>
+            <div class = "white-text">{{ value.circulatingSupply }}</div>
+            <div class = "white-text">{{ value.marketCap }}</div>
+            <div class = "white-text">{{ value.volume }}</div>
+{#            <div class="white-text">price</div>#}
+{#            <div class="white-text">circulating supply</div>#}
+{#            <div class="white-text">market cap</div>#}
+{#            <div class="white-text">volume</div>#}
+                <div >
+                  <canvas style="background: #16162b" id="myChart{{ value.id }}"></canvas>
+                </div>
+
+                <script>
+                  var labelName = "labels"+{{ value.id }};
+                  var dataName = "data"+{{ value.id }};
+                  var configName = "config"+{{ value.id }};
+                  var myChartName = "myChart"+{{ value.id }};
+
+                  window[labelName] = [
+                                {% for row in rows %}
+                                        {% if row.currency == value.alias %}
+                                                '{{ " "     }}',
+                                        {% endif %}
+                                  {% endfor %}
+                                ];
+
+                  window[dataName] = {
+                    labels: window[labelName],
+                    datasets: [{
+                      label: 'Price',
+                      backgroundColor: '#2ae419',
+                      borderColor: '#2ae419',
+                    pointRadius:1,
+                      data:
+                          [{% for row in rows %}
+                              {% if row.currency == value.alias %}
+                                {{ row.High }},
+                              {% endif %}
+                          {% endfor %}]
+                    }]
+                  };
+
+                  window[configName] = {
+                    type: 'line',
+                    data: window[dataName],
+
+                    options: {
+                        plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                        scales: {
+                            y: {
+                                display: false,
+                            },
+                            x:{
+                                display:false
+                            }
+                        },
+
+                    }
+                  };
+                  window[myChartName] = new Chart(
+                    document.getElementById('myChart{{ value.id }}'),
+                    window[configName],
+                  );
+
+                </script>
+            </div>
+        </div>
+
+    {% endfor %}
+    </ol>
+
+{% endif %}
+    <form method="POST">
+    {% csrf_token %}
+    <div class="page-number">
+    {% for i in range %}
+        <input class="page-button" type="submit" name="page{{ i }}" value={{ i }}>
+    {% endfor %}
+    </div>
+    </form>
+{% include 'footer.html' %}
+</body>
+</html>

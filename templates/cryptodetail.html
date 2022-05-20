@@ -1,0 +1,149 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crypto Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <link rel="stylesheet" href="{% static 'css/cryptodetail.css' %}">
+</head>
+<body>
+{% include 'header.html' %}
+
+
+<div class="row no-gutters" style="margin-top: 20px">
+
+    <div class="col no-gutters">
+        <div class="leftside details">
+
+        {% csrf_token %}
+    {% if cryptoDetails %}
+          {% for data in cryptoDetails %}
+                 <image src="{{ data.url }}" style="height: 50px; width:50px; border: 5px solid white; border-radius: 50%"></image>
+              <br/>
+              <h1 class="white-text" style=" font-size: xx-large"> <b style="color: #c77ff2">{{ data.name }} ( {{ data.alias }} ) </b>
+
+                <form method="POST" action="{% url 'crypto:makepayment'%}?cryptoName={{ cryptoName }} ">
+                     {% csrf_token %}
+                <input  class="btn" name="MakeTransaction" type="submit" value="Trade {{ cryptoName }}">
+                </form>
+              </h1>
+
+              <br/>
+
+              <span class="white-text"  style=" font-size: x-large"> Current Price:<b style=" font-size: x-large ; color: #c77ff2"> {{ currentPrice }}$</b> </span><br>
+                <br/>
+              <span class="white-text" style=" font-size: x-large"> Market Capacity:<b style=" font-size: x-large; color: #c77ff2"> {{ marketCap }}$</b></span><br>
+              <br/>
+              <span class="white-text" style=" font-size: x-large"> Circulating Supply:<b style=" font-size: x-large ; color: #c77ff2"> {{ circulatingSupply }}</b></span><br>
+            <br/>
+              <span class="white-text" style=" font-size: x-large"> <b style=" font-size: x-large ; color: #c77ff2">Description</b><span style=" font-size: x-large">: {{ data.description }}</span></span><br>
+          {% endfor %}
+      {% endif %}
+
+        </div>
+    </div>
+
+    <div class="col no-gutters">
+
+        <div class="rightside">
+
+            <div id="chart">
+
+
+            <canvas class="canvas" id="myChart{{ cryptoName }}"></canvas>
+            </div>
+<form  action="{% url 'crypto:cryptoName' cryptoName%}" method="POST">
+        {% csrf_token %}
+        <div style="float: right ;margin-right: 10px">
+        <input class="btn" name="oneDay"  value="1 Day" type="submit"/>
+        <input class="btn"  name="sevenDays" value="7 days" type="submit" />
+        <input class="btn"  name="fifteenDays" value="15 days" type="submit" />
+        <input class="btn"  name="oneMonth" value="1 month" type="submit" />
+        <input class="btn"  name="twoMonths"  value="2 month" type="submit"/>
+        </div>
+</form>
+            <br/>
+            <script>
+      var labelName = "labels";
+      var dataName = "data";
+      var configName = "config";
+      var myChartName = "myChart";
+
+      window[labelName] = [
+                    {% for row in rows %}
+                            {% if row.currency == cryptoName %}
+                                    '{{ row.Datetime   }}',
+                            {% endif %}
+                      {% endfor %}
+                    ];
+
+      window[dataName] = {
+        labels: window[labelName],
+        {#labels : ['Monday','Monday','Monday','Monday','Monday'],#}
+        datasets: [{
+          label: '{{cryptoName}}',
+          backgroundColor: '#C77FF2FF',
+          borderColor: '#C77FF2FF',
+        pointRadius:1,
+          data:
+              [{% for row in rows %}
+                  {% if row.currency == cryptoName %}
+                    {{ row.High }},
+                  {% endif %}
+              {% endfor %}]
+        }]
+      };
+
+      window[configName] = {
+
+        type: 'line',
+        data: window[dataName],
+
+        options: {
+            plugins: {
+            legend: {
+                display: false
+            }
+        },
+            scales: {
+                y:
+                    {
+                        ticks:{
+                        color:'white'
+                        }
+
+                    },
+
+                x:
+                    {
+                        ticks:{
+                        color:'white'
+                        }
+
+                    }
+            },
+
+        }
+      };
+      window[myChartName] = new Chart(
+        document.getElementById('myChart{{ cryptoName }}'),
+        window[configName],
+      );
+
+
+</script>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+{% include 'footer.html' %}
+</body>
+</html>
